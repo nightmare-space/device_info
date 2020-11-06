@@ -12,6 +12,13 @@ dependencies:
   flutter:
     sdk: flutter
 
+  global_repository:
+    path: ../plugins/global_repository
+
+  # 用与图片取色器
+  image: 2.1.12
+  # 状态管理
+  provider: ^3.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
