@@ -131,7 +131,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
           onTap: () async {
             // await CustomProcess.exec("echo 3 > /proc/sys/vm/drop_caches");
             final Map<String, int> info =
-                await systemInfo.invokeMethod<Map<String, int>>('');
+                await systemInfo.invokeMethod<Map<String, int>>('getRamStat');
 
             final String freeOut = await NiProcess.exec('free');
             final List<String> swapInfos = (freeOut.split('\n')

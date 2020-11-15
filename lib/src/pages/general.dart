@@ -59,7 +59,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
 
   Future<void> initRamInfo() async {
     final Map<dynamic, dynamic> info =
-        await systemInfo.invokeMethod<Map<dynamic, dynamic>>('');
+        await systemInfo.invokeMethod<Map<dynamic, dynamic>>('getRamStat');
     final int totalMem = info['totalMem'] as int;
     final int availMem = info['availMem'] as int;
     // print(info);

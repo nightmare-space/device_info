@@ -119,8 +119,8 @@ packages:
   global_repository:
     dependency: transitive
     description:
-      path: "../../plugins/global_repository"
-      relative: true
+      path: "/Users/nightmare/Desktop/nightmare-space/plugins/global_repository"
+      relative: false
     source: path
     version: "0.0.1"
   image:
