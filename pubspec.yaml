@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
 
   global_repository:
-    path: /Users/nightmare/Desktop/nightmare-space/plugins/global_repository
+    git: https://github.com/nightmare-space/global_repository
 
   # 用与图片取色器
   image: 2.1.12
