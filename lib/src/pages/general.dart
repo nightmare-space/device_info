@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 import 'package:device_info/src/canvas/circle_progress.dart';
 import 'package:device_info/src/provider/general_stat.dart';
@@ -462,13 +463,23 @@ class _CpuInfoBodyState extends State<CpuInfoBody>
 
   Future<void> getCpuInfo() async {
     await Future<void>.delayed(const Duration(milliseconds: 100));
-    while (mounted) {
-      final String cpuBuysInfo = await NiProcess.exec(
-          "cat /sys/devices/system/cpu/cpu0/core_ctl/global_state | busybox grep \'Busy\' | busybox sed 's/Busy%: //g'");
-      cpuBusyRadio.clear();
-      cpuBusyRadio.setBusyRatio(cpuBuysInfo);
 
-      // print(cpuBusyRadio.cpuBusyRatio);
+    while (mounted) {
+      String globalStateRaw = File(
+        '/sys/devices/system/cpu/cpu0/core_ctl/global_state',
+      ).readAsStringSync();
+      // print(globalStateRaw);
+      RegExp busy = RegExp('Busy.*');
+      Iterable<RegExpMatch> allMatches = busy.allMatches(globalStateRaw);
+      String cpuInfo = '';
+      for (var match in allMatches) {
+        cpuInfo += match.group(0).replaceAll('Busy%: ', '') + '\n';
+        print(match.group(0));
+      }
+      // print(cpuInfo);
+      cpuBusyRadio.clear();
+      cpuBusyRadio.setBusyRatio(cpuInfo);
+
       await Future<void>.delayed(const Duration(milliseconds: 1000));
     }
     // String result = await CustomProcess.exec(
@@ -584,11 +595,15 @@ class __SingleCpuState extends State<_SingleCpu>
     while (mounted) {
       final double curRatio =
           generalStat.cpuBusyRatio[widget.cpuIndex].toDouble() / 100;
-      animation = Tween<double>(begin: animation.value, end: curRatio)
-          .animate(animationController);
+      animation = Tween<double>(
+        begin: animation.value,
+        end: curRatio,
+      ).animate(animationController);
       animationController.reset();
       animationController.forward();
-      await Future<void>.delayed(const Duration(milliseconds: 1000));
+      await Future<void>.delayed(
+        const Duration(milliseconds: 1000),
+      );
     }
   }
 
@@ -611,7 +626,7 @@ class __SingleCpuState extends State<_SingleCpu>
           alignment: Alignment.center,
           children: <Widget>[
             FlutterWaveLoading(
-              borderRadius: 16.0,
+              borderRadius: 8.0,
               color: cpuColor,
               progress: animation.value,
               width: deviceWidth / 4 - 12.0,
