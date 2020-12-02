@@ -7,3 +7,4 @@
 ![](screencap/02.jpg)
 ![](screencap/03.jpg)
 ![](screencap/04.jpg)
+<img src="screencap/04.jpg" width = "300" height = "200" alt="图片名称" align=center />
