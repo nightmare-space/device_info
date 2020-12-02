@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:global_repository/global_repository.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/battery.dart';
@@ -11,6 +10,9 @@ import 'pages/system.dart';
 import 'provider/general_stat.dart';
 
 class DeviceInfo extends StatefulWidget {
+  DeviceInfo() {
+    NiProcess.exec('su');
+  }
   @override
   _DeviceInfoState createState() => _DeviceInfoState();
 }
@@ -26,42 +28,37 @@ class _DeviceInfoState extends State<DeviceInfo>
 
   @override
   Widget build(BuildContext context) {
-    // debugRepaintRainbowEnabled
-    return MaterialApp(
-      // showPerformanceOverlay: true,
-      // // showSemanticsDebugger: true,
-      // checkerboardRasterCacheImages: true,
-      // checkerboardOffscreenLayers: true,
-      // debugShowCheckedModeBanner: true,
-      // debugShowMaterialGrid: true,
-      theme: ThemeData(
-        fontFamily: Platform.isLinux ? 'SourceHanSansSC-Light' : null,
+    bool darkMode = Theme.of(context).brightness == Brightness.dark;
+    return Theme(
+      data: ThemeData(
         textTheme: TextTheme(
           bodyText2: TextStyle(
-            color: const Color(0xb3ffffff),
+            color: darkMode ? const Color(0xb3ffffff) : Colors.black,
           ),
         ),
         accentColor: const Color(0xff6002ee),
-        primaryColorBrightness: Brightness.light,
+        primaryColorBrightness: Theme.of(context).brightness,
         backgroundColor: Colors.black,
         // tabBarTheme: TabBarTheme(
         //   labelColor: Color(0xff6002ee),
         // ),
+        brightness: Theme.of(context).brightness,
         appBarTheme: AppBarTheme(
           iconTheme: IconThemeData(
-            color: const Color(0xb3ffffff),
+            color: darkMode ? const Color(0xb3ffffff) : Colors.black,
           ),
           textTheme: TextTheme(
             headline6: TextStyle(
-              color: const Color(0xb3ffffff),
+              color: darkMode ? const Color(0xb3ffffff) : Colors.black,
               fontSize: 18.0,
             ),
           ),
           color: const Color(0xff303030),
         ),
-        scaffoldBackgroundColor: const Color(0xff303030),
+        scaffoldBackgroundColor:
+            darkMode ? const Color(0xff303030) : Colors.white,
       ),
-      home: ChangeNotifierProvider<GeneralStat>(
+      child: ChangeNotifierProvider<GeneralStat>(
         create: (_) => GeneralStat(),
         child: Scaffold(
           appBar: AppBar(
@@ -73,7 +70,7 @@ class _DeviceInfoState extends State<DeviceInfo>
             ),
             bottom: TabBar(
               isScrollable: true,
-              indicatorPadding: const EdgeInsets.only(left: 20.0),
+              indicatorPadding: const EdgeInsets.only(left: 0.0),
               indicator: const RoundedUnderlineTabIndicator(
                 // insets:EdgeInsets.all(16.0),
                 radius: 25.0,
