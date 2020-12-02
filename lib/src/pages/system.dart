@@ -63,6 +63,7 @@ class _SystemInfoState extends State<SystemInfo> {
         .split(' ')
         .first
         .replaceAll('.', '');
+    print('uptime->$uptime');
     DateTime dateTime = DateTime(0, 0, 0, 0, 0, int.tryParse(uptime) ~/ 100);
     values['已开机时长'] =
         '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}';
