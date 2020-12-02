@@ -83,14 +83,15 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
 
   Future<void> initMemory() async {
     while (mounted) {
-      final Map<String, int> info =
-          await systemInfo.invokeMethod<Map<String, int>>('');
+      final Map<dynamic, dynamic> systemInfoResult =
+          await systemInfo.invokeMethod<Map<dynamic, dynamic>>('getRamStat');
+      final Map<String, int> info = systemInfoResult.cast<String, int>();
+      // for (var key in systemInfoResult.keys) {}
       final String freeOut = await NiProcess.exec('free');
-      final List<String> swapInfos = (freeOut.split('\n')
-            ..removeAt(0)
-            ..removeAt(0))
-          .first
-          .split(RegExp('\\s+'));
+      // print(freeOut);
+      final RegExp swap = RegExp('Swap.*');
+      final String swapLine = swap.stringMatch(freeOut);
+      final List<String> swapInfos = swapLine.split(RegExp('\\s+'));
       // print(swapInfos);
       info['totalSwap'] = int.tryParse(swapInfos[1]) * 1024;
       info['usedSwap'] = int.tryParse(swapInfos[2]) * 1024;
@@ -107,6 +108,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
         setState(() {});
       }
       final String result = await NiProcess.exec('df');
+      // print(result);
       final List<String> infos = result.split('\n');
       for (final String line in infos) {
         if (line.endsWith('/')) {
@@ -164,11 +166,11 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
                   Container(
                     width: 6.0,
                     height: 30.0,
-                    decoration: BoxDecoration(
-                      // color: YanToolColors.candyColor[0],
-                      borderRadius: const BorderRadius.only(
-                          bottomRight: Radius.circular(25),
-                          topRight: Radius.circular(25)),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        bottomRight: Radius.circular(25),
+                        topRight: Radius.circular(25),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -244,7 +246,8 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
                         ramSwapInfo.swapFullSize.toDouble(),
                 backgroundColor: Colors.grey,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).accentColor),
+                  Theme.of(context).accentColor,
+                ),
               ),
             ),
           ),
@@ -259,9 +262,8 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
             Container(
               width: 6.0,
               height: 30.0,
-              decoration: BoxDecoration(
-                // color: YanToolColors.candyColor[2],
-                borderRadius: const BorderRadius.only(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
                     bottomRight: Radius.circular(25),
                     topRight: Radius.circular(25)),
               ),
