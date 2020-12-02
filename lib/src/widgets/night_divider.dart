@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class DividerAndText extends StatelessWidget {
@@ -9,14 +8,19 @@ class DividerAndText extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: <Widget>[
-        const Divider(
-          indent: 12.0,
-          endIndent: 12.0,
-          height: 2.0,
-        ),
+        // const Divider(
+        //   indent: 12.0,
+        //   endIndent: 12.0,
+        //   height: 8.0,
+        // ),
         Material(
           color: Theme.of(context).scaffoldBackgroundColor,
-          child: Text(text),
+          child: Text(
+            text,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         )
       ],
     );
