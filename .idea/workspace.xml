@@ -3,16 +3,18 @@
   <component name="ChangeListManager">
     <list default="true" id="f5c59292-c5da-438a-bbc4-ac190fe90b42" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/android/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.idea/caches/gradle_models.ser" beforeDir="false" afterPath="$PROJECT_DIR$/android/.idea/caches/gradle_models.ser" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/src/main/java/com/nightmare/deviceinfo/device_info/DeviceInfoPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/src/main/java/com/nightmare/deviceinfo/device_info/DeviceInfoPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/device_info.iml" beforeDir="false" afterPath="$PROJECT_DIR$/device_info.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/example/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/device_info.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/device_info.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/home.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/pages/general.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/pages/general.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/pages/memory.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/pages/memory.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/pages/system.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/pages/system.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/widgets/night_divider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/widgets/night_divider.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/device_info_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/device_info_test.dart" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -55,8 +57,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/src/pages/general.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="94">
-              <caret line="27" column="28" selection-start-line="27" selection-start-column="28" selection-end-line="27" selection-end-column="28" />
+            <state relative-caret-position="170">
+              <caret line="31" column="20" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -74,10 +76,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="10" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="17" />
     <option name="y" value="23" />
-    <option name="width" value="1920" />
+    <option name="width" value="1913" />
     <option name="height" value="986" />
   </component>
   <component name="ProjectView">
@@ -85,9 +87,14 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
+            <path>
+              <item name="device_info" type="b2602c69:ProjectViewProjectNode" />
+              <item name="device_info" type="462c0819:PsiDirectoryNode" />
+            </path>
             <path>
               <item name="device_info" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
@@ -97,7 +104,6 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="AndroidView" />
     </panes>
   </component>
@@ -136,10 +142,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="10" y="23" width="1920" height="986" extended-state="6" />
+    <frame x="0" y="23" width="1920" height="986" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24973376" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21778488" />
       <window_info id="Captures" order="1" side_tool="true" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
@@ -189,8 +195,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/src/pages/general.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="94">
-          <caret line="27" column="28" selection-start-line="27" selection-start-column="28" selection-end-line="27" selection-end-column="28" />
+        <state relative-caret-position="170">
+          <caret line="31" column="20" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
