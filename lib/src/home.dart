@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:global_repository/global_repository.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +13,9 @@ import 'provider/general_stat.dart';
 
 class DeviceInfo extends StatefulWidget {
   DeviceInfo() {
-    NiProcess.exec('su');
+    if (Platform.isAndroid) {
+      NiProcess.exec('su');
+    }
   }
   @override
   _DeviceInfoState createState() => _DeviceInfoState();
