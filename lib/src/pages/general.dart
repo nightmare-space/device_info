@@ -9,8 +9,8 @@ import 'package:device_info/src/widgets/flutter_wave.dart';
 import 'package:device_info/src/widgets/night_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:global_repository/global_repository.dart';
-import 'package:provider/provider.dart';
 
 class General extends StatefulWidget {
   @override
@@ -328,7 +328,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                 height: 100,
                 child: GestureDetector(
                   onTap: () async {
-                    NiToast.showToast('清理中');
+                    // showToast('清理中');
                     await ramAnimaCtl.reverse();
                     await NiProcess.exec(
                         '''BUSYBOX=/data/data/com.nightmare/files/usr/bin/busybox
@@ -498,7 +498,7 @@ class _CpuInfoBodyState extends State<CpuInfoBody>
 
   @override
   Widget build(BuildContext context) {
-    cpuBusyRadio = Provider.of<GeneralStat>(context);
+    cpuBusyRadio = Get.find();
     // print(cpuBusyRadio.cpuBusyRatio);
     return Column(
       children: <Widget>[
@@ -616,7 +616,7 @@ class __SingleCpuState extends State<_SingleCpu>
   GeneralStat generalStat;
   @override
   Widget build(BuildContext context) {
-    generalStat = Provider.of<GeneralStat>(context);
+    generalStat = Get.find();
     final double deviceWidth = MediaQuery.of(context).size.width;
     return AnimatedBuilder(
       animation: animation,

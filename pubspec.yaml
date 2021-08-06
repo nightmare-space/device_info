@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  get: ^4.1.3
   # 用与图片取色器
   image: 3.0.0-nullsafety.0
   global_repository:

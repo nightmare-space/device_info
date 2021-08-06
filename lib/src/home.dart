@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:global_repository/global_repository.dart';
-import 'package:provider/provider.dart';
 
 import 'pages/battery.dart';
 import 'pages/device.dart';
@@ -15,6 +15,7 @@ class DeviceInfo extends StatefulWidget {
   DeviceInfo() {
     if (Platform.isAndroid) {
       NiProcess.exec('su');
+      Get.put(GeneralStat());
     }
   }
   @override
@@ -62,90 +63,87 @@ class _DeviceInfoState extends State<DeviceInfo>
         scaffoldBackgroundColor:
             darkMode ? const Color(0xff303030) : Colors.white,
       ),
-      child: ChangeNotifierProvider<GeneralStat>(
-        create: (_) => GeneralStat(),
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-            title: const Text(
-              '设备信息',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            bottom: TabBar(
-              isScrollable: true,
-              indicatorPadding: const EdgeInsets.only(left: 0.0),
-              indicator: const RoundedUnderlineTabIndicator(
-                // insets:EdgeInsets.all(16.0),
-                radius: 25.0,
-                width: 72.0,
-                borderSide: BorderSide(
-                  width: 4.0,
-                  color: Color(0xff6002ee),
-                ),
-                // color: Color(0xff6002ee),
-                // borderRadius: BorderRadius.only(
-                //     topLeft: Radius.circular(25), topRight: Radius.circular(25)),
-              ),
-              controller: tabController,
-              labelStyle: const TextStyle(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+          title: const Text(
+            '设备信息',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          bottom: TabBar(
+            isScrollable: true,
+            indicatorPadding: const EdgeInsets.only(left: 0.0),
+            indicator: const RoundedUnderlineTabIndicator(
+              // insets:EdgeInsets.all(16.0),
+              radius: 25.0,
+              width: 72.0,
+              borderSide: BorderSide(
+                width: 4.0,
                 color: Color(0xff6002ee),
               ),
-              labelColor: const Color(0xff6002ee),
-              unselectedLabelColor: Colors.black,
-              tabs: const <Widget>[
-                Tab(
-                  child: Text('设备概况'),
-                ),
-                Tab(
-                  child: Text('设备'),
-                ),
-                Tab(
-                  child: Text('系统'),
-                ),
-                Tab(
-                  child: Text('电池'),
-                ),
-                Tab(
-                  child: Text('储存器'),
-                ),
-                Tab(
-                  child: Text('芯片'),
-                ),
-                Tab(
-                  child: Text('网络'),
-                ),
-                Tab(
-                  child: Text('屏幕'),
-                ),
-                Tab(
-                  child: Text('摄像头'),
-                ),
-                Tab(
-                  child: Text('温度'),
-                ),
-                Tab(
-                  child: Text('传感器'),
-                ),
-              ],
+              // color: Color(0xff6002ee),
+              // borderRadius: BorderRadius.only(
+              //     topLeft: Radius.circular(25), topRight: Radius.circular(25)),
             ),
-          ),
-          body: TabBarView(
             controller: tabController,
-            children: <Widget>[
-              General(),
-              Device(),
-              SystemInfo(),
-              Battery(),
-              Memory(),
-              const Text('还没写'),
-              const Text('还没写'),
-              const Text('还没写'),
-              const Text('还没写'),
-              const Text('还没写'),
-              const Text('还没写'),
+            labelStyle: const TextStyle(
+              color: Color(0xff6002ee),
+            ),
+            labelColor: const Color(0xff6002ee),
+            unselectedLabelColor: Colors.black,
+            tabs: const <Widget>[
+              Tab(
+                child: Text('设备概况'),
+              ),
+              Tab(
+                child: Text('设备'),
+              ),
+              Tab(
+                child: Text('系统'),
+              ),
+              Tab(
+                child: Text('电池'),
+              ),
+              Tab(
+                child: Text('储存器'),
+              ),
+              Tab(
+                child: Text('芯片'),
+              ),
+              Tab(
+                child: Text('网络'),
+              ),
+              Tab(
+                child: Text('屏幕'),
+              ),
+              Tab(
+                child: Text('摄像头'),
+              ),
+              Tab(
+                child: Text('温度'),
+              ),
+              Tab(
+                child: Text('传感器'),
+              ),
             ],
           ),
+        ),
+        body: TabBarView(
+          controller: tabController,
+          children: <Widget>[
+            General(),
+            Device(),
+            SystemInfo(),
+            Battery(),
+            Memory(),
+            const Text('还没写'),
+            const Text('还没写'),
+            const Text('还没写'),
+            const Text('还没写'),
+            const Text('还没写'),
+            const Text('还没写'),
+          ],
         ),
       ),
     );
