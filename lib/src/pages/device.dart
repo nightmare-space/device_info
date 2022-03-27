@@ -35,7 +35,7 @@ class _DeviceState extends State<Device> {
   }
 
   Future<void> initSystem() async {
-    props = await NiProcess.exec('getprop');
+    props = await exec('getprop');
     for (final String key in keys.keys) {
       if (keys[key] != null) {
         values[key] = getValueFromProps(keys[key]);

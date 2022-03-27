@@ -14,7 +14,7 @@ import 'provider/general_stat.dart';
 class DeviceInfo extends StatefulWidget {
   DeviceInfo() {
     if (Platform.isAndroid) {
-      NiProcess.exec('su');
+      // NiProcess.exec('su');
       Get.put(GeneralStat());
     }
   }
@@ -25,6 +25,7 @@ class DeviceInfo extends StatefulWidget {
 class _DeviceInfoState extends State<DeviceInfo>
     with SingleTickerProviderStateMixin {
   TabController tabController;
+
   @override
   void initState() {
     super.initState();
@@ -34,117 +35,84 @@ class _DeviceInfoState extends State<DeviceInfo>
   @override
   Widget build(BuildContext context) {
     bool darkMode = Theme.of(context).brightness == Brightness.dark;
-    return Theme(
-      data: ThemeData(
-        textTheme: TextTheme(
-          bodyText2: TextStyle(
-            color: darkMode ? const Color(0xb3ffffff) : Colors.black,
-          ),
-        ),
-        accentColor: const Color(0xff6002ee),
-        primaryColorBrightness: Theme.of(context).brightness,
-        backgroundColor: Colors.black,
-        // tabBarTheme: TabBarTheme(
-        //   labelColor: Color(0xff6002ee),
-        // ),
-        brightness: Theme.of(context).brightness,
-        appBarTheme: AppBarTheme(
-          iconTheme: IconThemeData(
-            color: darkMode ? const Color(0xb3ffffff) : Colors.black,
-          ),
-          textTheme: TextTheme(
-            headline6: TextStyle(
-              color: darkMode ? const Color(0xb3ffffff) : Colors.black,
-              fontSize: 18.0,
-            ),
-          ),
-          color: const Color(0xff303030),
-        ),
-        scaffoldBackgroundColor:
-            darkMode ? const Color(0xff303030) : Colors.white,
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0.0,
-          title: const Text(
-            '设备信息',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          bottom: TabBar(
-            isScrollable: true,
-            indicatorPadding: const EdgeInsets.only(left: 0.0),
-            indicator: const RoundedUnderlineTabIndicator(
-              // insets:EdgeInsets.all(16.0),
-              radius: 25.0,
-              width: 72.0,
-              borderSide: BorderSide(
-                width: 4.0,
-                color: Color(0xff6002ee),
-              ),
-              // color: Color(0xff6002ee),
-              // borderRadius: BorderRadius.only(
-              //     topLeft: Radius.circular(25), topRight: Radius.circular(25)),
-            ),
-            controller: tabController,
-            labelStyle: const TextStyle(
-              color: Color(0xff6002ee),
-            ),
-            labelColor: const Color(0xff6002ee),
-            unselectedLabelColor: Colors.black,
-            tabs: const <Widget>[
-              Tab(
-                child: Text('设备概况'),
-              ),
-              Tab(
-                child: Text('设备'),
-              ),
-              Tab(
-                child: Text('系统'),
-              ),
-              Tab(
-                child: Text('电池'),
-              ),
-              Tab(
-                child: Text('储存器'),
-              ),
-              Tab(
-                child: Text('芯片'),
-              ),
-              Tab(
-                child: Text('网络'),
-              ),
-              Tab(
-                child: Text('屏幕'),
-              ),
-              Tab(
-                child: Text('摄像头'),
-              ),
-              Tab(
-                child: Text('温度'),
-              ),
-              Tab(
-                child: Text('传感器'),
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          controller: tabController,
-          children: <Widget>[
-            General(),
-            Device(),
-            SystemInfo(),
-            Battery(),
-            Memory(),
-            const Text('还没写'),
-            const Text('还没写'),
-            const Text('还没写'),
-            const Text('还没写'),
-            const Text('还没写'),
-            const Text('还没写'),
-          ],
-        ),
+    return Scaffold(
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0.0,
+      //   // bottom: TabBar(
+      //   //   isScrollable: true,
+      //   //   indicatorPadding: const EdgeInsets.only(left: 0.0),
+      //   //   indicator: const RoundedUnderlineTabIndicator(
+      //   //     // insets:EdgeInsets.all(16.0),
+      //   //     radius: 25.0,
+      //   //     width: 72.0,
+      //   //     borderSide: BorderSide(
+      //   //       width: 4.0,
+      //   //       color: Color(0xff6002ee),
+      //   //     ),
+      //   //     // color: Color(0xff6002ee),
+      //   //     // borderRadius: BorderRadius.only(
+      //   //     //     topLeft: Radius.circular(25), topRight: Radius.circular(25)),
+      //   //   ),
+      //   //   controller: tabController,
+      //   //   labelStyle: const TextStyle(
+      //   //     color: Color(0xff6002ee),
+      //   //   ),
+      //   //   labelColor: const Color(0xff6002ee),
+      //   //   unselectedLabelColor: Colors.black,
+      //   //   tabs: const <Widget>[
+      //   //     Tab(
+      //   //       child: Text('设备概况'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('设备'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('系统'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('电池'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('储存器'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('芯片'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('网络'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('屏幕'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('摄像头'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('温度'),
+      //   //     ),
+      //   //     Tab(
+      //   //       child: Text('传感器'),
+      //   //     ),
+      //   //   ],
+      //   // ),
+      // ),
+      body: TabBarView(
+        controller: tabController,
+        physics: NeverScrollableScrollPhysics(),
+        children: <Widget>[
+          General(),
+          Device(),
+          SystemInfo(),
+          Battery(),
+          Memory(),
+          const Text('还没写'),
+          const Text('还没写'),
+          const Text('还没写'),
+          const Text('还没写'),
+          const Text('还没写'),
+          const Text('还没写'),
+        ],
       ),
     );
   }

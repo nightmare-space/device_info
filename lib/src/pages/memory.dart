@@ -87,7 +87,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
           await systemInfo.invokeMethod<Map<dynamic, dynamic>>('getRamStat');
       final Map<String, int> info = systemInfoResult.cast<String, int>();
       // for (var key in systemInfoResult.keys) {}
-      final String freeOut = await NiProcess.exec('free');
+      final String freeOut = await exec('free');
       // print(freeOut);
       final RegExp swap = RegExp('Swap.*');
       final String swapLine = swap.stringMatch(freeOut);
@@ -107,7 +107,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
       if (mounted) {
         setState(() {});
       }
-      final String result = await NiProcess.exec('df');
+      final String result = await exec('df');
       // print(result);
       final List<String> infos = result.split('\n');
       for (final String line in infos) {
@@ -135,7 +135,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
             final Map<String, int> info =
                 await systemInfo.invokeMethod<Map<String, int>>('getRamStat');
 
-            final String freeOut = await NiProcess.exec('free');
+            final String freeOut = await exec('free');
             final List<String> swapInfos = (freeOut.split('\n')
                   ..removeAt(0)
                   ..removeAt(0))

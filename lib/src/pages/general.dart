@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+import 'package:device_info/model/cpu_info.dart';
 import 'package:device_info/src/canvas/circle_progress.dart';
+import 'package:device_info/src/controller/device_controller.dart';
 import 'package:device_info/src/provider/general_stat.dart';
 import 'package:device_info/src/utils/get_ratio_color.dart';
 import 'package:device_info/src/utils/percentage_util.dart';
@@ -12,21 +14,26 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:global_repository/global_repository.dart';
 
+import 'line_chart_sample2.dart';
+
 class General extends StatefulWidget {
   @override
   _GeneralState createState() => _GeneralState();
 }
 
 class _GeneralState extends State<General> with TickerProviderStateMixin {
+  DeviceController controller = Get.put(
+    DeviceController()
+      ..pollingDeviceCPUGPU()
+      ..getSimpleInfo(),
+  );
+
   MethodChannel systemInfo = MethodChannel('device_info');
   StreamSubscription<void> _streamSubscription;
   AnimationController _animationController;
   AnimationController ramAnimaCtl; //运行内存动画控制器
   Animation<double> ramScale; //RAM动画值
-  AnimationController cpuAnimaCtl;
-  Animation<double> cpuUsed;
-  AnimationController gpuAnimaCtl;
-  Animation<double> gpuUsed;
+
   // num _sensor;
   @override
   void initState() {
@@ -38,13 +45,15 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     ramScale.addListener(() {
       setState(() {});
     });
-    cpuAnimaCtl = AnimationController(
+    controller.cpuAnimaCtl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
-    cpuUsed = Tween<double>(begin: 0.0, end: 0.0).animate(cpuAnimaCtl);
+    controller.cpuUsed =
+        Tween<double>(begin: 0.0, end: 0.0).animate(controller.cpuAnimaCtl);
 
-    gpuAnimaCtl = AnimationController(
+    controller.gpuAnimaCtl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
-    gpuUsed = Tween<double>(begin: 0.0, end: 0.0).animate(cpuAnimaCtl);
+    controller.gpuUsed =
+        Tween<double>(begin: 0.0, end: 0.0).animate(controller.cpuAnimaCtl);
 
     // _animationController =
     //     AnimationController(vsync: this, duration: Duration(milliseconds: 100));
@@ -59,72 +68,14 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
   }
 
   Future<void> initRamInfo() async {
-    final Map<dynamic, dynamic> info =
-        await systemInfo.invokeMethod<Map<dynamic, dynamic>>('getRamStat');
-    final int totalMem = info['totalMem'] as int;
-    final int availMem = info['availMem'] as int;
+    // final Map<dynamic, dynamic> info =
+    //     await systemInfo.invokeMethod<Map<dynamic, dynamic>>('getRamStat');
+    // final int totalMem = info['totalMem'] as int;
+    // final int availMem = info['availMem'] as int;
     // print(info);
-    ramScale = Tween<double>(begin: 0.0, end: (totalMem - availMem) / totalMem)
-        .animate(CurvedAnimation(parent: ramAnimaCtl, curve: Curves.easeIn));
+    // ramScale = Tween<double>(begin: 0.0, end: (totalMem - availMem) / totalMem)
+    //     .animate(CurvedAnimation(parent: ramAnimaCtl, curve: Curves.easeIn));
     ramAnimaCtl.forward();
-    while (mounted) {
-      await getCpuRatio();
-      await getGpuRatio();
-      await Future<void>.delayed(const Duration(seconds: 1));
-    }
-  }
-
-  Future<void> getGpuRatio() async {
-    final List<String> gpuInfo = (await NiProcess.exec(
-            'cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage'))
-        .split(RegExp('\\s+'));
-    gpuUsed = Tween<double>(
-      begin: gpuUsed.value,
-      end: double.tryParse(gpuInfo.first) / 100,
-    ).animate(gpuAnimaCtl);
-    gpuAnimaCtl.reset();
-    gpuAnimaCtl.forward();
-  }
-
-  Future<void> getCpuRatio() async {
-    List<String> statList = (await NiProcess.exec('cat /proc/stat'))
-        .split('\n')
-        .first
-        .split(RegExp('\\s+'))
-          ..removeAt(0);
-    int user = int.tryParse(statList[0]);
-    int nice = int.tryParse(statList[1]);
-    int system = int.tryParse(statList[2]);
-    int idle = int.tryParse(statList[3]);
-    int iowait = int.tryParse(statList[4]);
-    int irq = int.tryParse(statList[5]);
-    int softirq = int.tryParse(statList[6]);
-    final int preTotalTime =
-        user + nice + system + idle + iowait + irq + softirq;
-    final int preBusyTime = preTotalTime - idle;
-    statList = (await NiProcess.exec('cat /proc/stat'))
-        .split('\n')
-        .first
-        .split(RegExp('\\s+'))
-          ..removeAt(0);
-    user = int.tryParse(statList[0]);
-    nice = int.tryParse(statList[1]);
-    system = int.tryParse(statList[2]);
-    idle = int.tryParse(statList[3]);
-    iowait = int.tryParse(statList[4]);
-    irq = int.tryParse(statList[5]);
-    softirq = int.tryParse(statList[6]);
-    final int curTotalTime =
-        user + nice + system + idle + iowait + irq + softirq;
-    final int curBusytime = curTotalTime - idle;
-    final double curCpuUsed =
-        (curBusytime - preBusyTime) / (curTotalTime - preTotalTime);
-    cpuUsed = Tween<double>(
-      begin: cpuUsed.value,
-      end: curCpuUsed,
-    ).animate(cpuAnimaCtl);
-    cpuAnimaCtl.reset();
-    cpuAnimaCtl.forward();
   }
 
   @override
@@ -132,535 +83,550 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     _animationController?.dispose();
     _streamSubscription?.cancel();
     ramAnimaCtl.dispose();
-    cpuAnimaCtl.dispose();
-    gpuAnimaCtl.dispose();
+    controller.cpuAnimaCtl.dispose();
+    controller.gpuAnimaCtl.dispose();
     super.dispose();
   }
 
   double pitch = 0.0;
-  // void sensorLinsten() {
-  //   _streamSubscription =
-  //       AeyriumSensor.sensorEvents.listen((SensorEvent event) async {
-  //     // _hasListen = true;
-  //     // if (widget.reverse)
-  //     //   _sensor = event.roll;
-  //     // else
-  //     // rotated = ;
-  //     double positiveAngel;
-  //     if (event.roll >= 0)
-  //       positiveAngel = event.roll;
-  //     else
-  //       positiveAngel = (2 * pi + event.roll).abs();
-  //     pitch = event.pitch + pi / 2;
-  //     if (_angelvalue.value < pi / 2 && positiveAngel > 1.5 * pi) {
-  //       _angelvalue = Tween<double>(begin: _angelvalue.value, end: 0)
-  //           .animate(_animationController);
-  //       if (!_animationController.isAnimating) {
-  //         _animationController.reset();
-  //         await _animationController.forward();
-  //         _angelvalue = Tween<double>(begin: 2 * pi, end: positiveAngel)
-  //             .animate(_animationController);
-  //         _animationController.forward();
-  //       }
-  //     } else if (_angelvalue.value > 1.5 * pi / 2 && positiveAngel < pi / 2) {
-  //       _angelvalue = Tween<double>(begin: _angelvalue.value, end: 2 * pi)
-  //           .animate(_animationController);
-  //       if (!_animationController.isAnimating) {
-  //         _animationController.reset();
-  //         await _animationController.forward();
-  //         _angelvalue = Tween<double>(begin: 2 * pi, end: positiveAngel)
-  //             .animate(_animationController);
-  //         _animationController.forward();
-  //       }
-  //     } else {
-  //       _angelvalue =
-  //           Tween<double>(begin: _angelvalue.value, end: positiveAngel)
-  //               .animate(_animationController);
-  //       if (!_animationController.isAnimating) {
-  //         _animationController.reset();
-  //         _animationController.forward();
-  //       }
-  //     }
-
-  //     // setState(() {});
-  //     // print(_sensor);
-  //     //保存传感器插件传回来的Z轴的弧度变化
-  //     //由于传感器数据在刚好超过π时会马上变为负值
-  //     //所以写一下逻辑来避免一些动画过渡的Bug
-  //     // if (_sensor.abs() >= pi / 2) {
-  //     //   //当倾斜弧度的绝对值大于π/2即90°用另一种方法计算当前的偏移位置
-  //     //   if (_sensor >= 0) {
-  //     //     _tmp = _angelvalue * pi / 180;
-  //     //   }
-  //     //   if (_sensor <= 0) {
-  //     //     if (_angelvalue == 0.0) {
-  //     //       _tmp = _angelvalue;
-  //     //     } else {
-  //     //       _tmp = _angelvalue * pi / 180 - 2 * pi; //将传感器值处于三四象限为负转化为正
-  //     //     }
-  //     //   }
-
-  //     // } else {
-  //     //   _tmp = _rotation;
-  //     //   _change = _sensor - _tmp;
-  //     // }
-  //     // _animationController.addListener(() {
-  //     //   setState(() {
-  //     //     _rotation = _tmp + _change * _values.value;
-  //     //     //利用动画的值改变控件倾斜的角度
-  //     //   });
-  //     // });
-  //     // if (!_animationController.isAnimating) {
-  //     //   if (_syncSensor) {
-  //     //     _animationController.forward();
-  //     //   }
-  //     // }
-  //   });
-  // }
-
   double rotated = 0.0;
   Color cpuProgressColor = const Color.fromRGBO(0, 255, 0, 1);
+
   @override
   Widget build(BuildContext context) {
     // print('build');
     final Color ramCircleColor = getColor(ramScale.value);
-
     return Scaffold(
       body: ListView(
         children: <Widget>[
-          const SizedBox(
-            height: 40.0,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              Column(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: SizedBox(
+              height: 130,
+              child: Wrap(
+                spacing: 12,
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      const Text(
-                        'CPU:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      AnimatedBuilder(
-                        animation: cpuUsed,
-                        builder: (BuildContext ctx, Widget child) {
-                          cpuProgressColor = getColor(cpuUsed.value);
-                          // print('build');
-                          return Center(
-                            child: SizedBox(
-                              width: 50,
-                              height: 50,
-                              child: CustomPaint(
-                                size: const Size(50.0, 50.0),
-                                painter: CircleProgress(
-                                  cpuUsed.value,
-                                  6.0,
-                                  cpuProgressColor,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    toPercentage(cpuUsed.value),
-                                    style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20.0,
-                  ),
-                  Row(
-                    children: <Widget>[
-                      const Text(
-                        'GPU:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      AnimatedBuilder(
-                        animation: gpuUsed,
-                        builder: (BuildContext ctx, Widget child) {
-                          return Center(
-                            child: SizedBox(
-                              width: 50,
-                              height: 50,
-                              child: CustomPaint(
-                                child: Center(
-                                  child: Text(
-                                    toPercentage(gpuUsed.value),
-                                    style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                size: const Size(50, 50),
-                                painter: CircleProgress(
-                                  gpuUsed.value,
-                                  6.0,
-                                  getColor(gpuUsed.value),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const Text(
-                '运行内存:',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: GestureDetector(
-                  onTap: () async {
-                    // showToast('清理中');
-                    await ramAnimaCtl.reverse();
-                    await NiProcess.exec(
-                        '''BUSYBOX=/data/data/com.nightmare/files/usr/bin/busybox
-                    \$BUSYBOX clear
-                    \$BUSYBOX echo ''
-                    \$BUSYBOX free | \$BUSYBOX awk '/Mem/{print '>>>...Memory Before Boosting: '\$4/1024' MB';}'
-                    \$BUSYBOX echo ''
-                    \$BUSYBOX echo 'Dropping cache'
-                    \$BUSYBOX sync
-                    \$BUSYBOX sysctl -w vm.drop_caches=3
-                    dc=/proc/sys/vm/drop_caches
-                    dc_v=`cat \$dc`
-                    if [ '\$dc_v' -gt 1 ]; then
-                    \$BUSYBOX sysctl -w vm.drop_caches=1
-                    fi
-                    \$BUSYBOX echo ''
-                    \$BUSYBOX echo ''
-                    \$BUSYBOX echo 'BOOSTED!!!'
-                    \$BUSYBOX echo ''
-                    \$BUSYBOX echo ''
-                    \$BUSYBOX free | \$BUSYBOX awk '/Mem/{print '>>>...Memory After Boosting : '\$4/1024' MB';}'
-                    \$BUSYBOX echo 'RAM boost \$( date +'%m-%d-%Y %H:%M:%S' )'
-                    ''');
-                    // final Map<String, int> info = await PlatformChannel
-                    //     .SystemInfo.invokeMethod<Map<String, int>>('');
-                    // final int totalMem = info['totalMem'];
-                    // final int availMem = info['availMem'];
-                    // ramScale = Tween<double>(
-                    //         begin: 0.0, end: (totalMem - availMem) / totalMem)
-                    //     .animate(CurvedAnimation(
-                    //         parent: ramAnimaCtl, curve: Curves.easeIn));
-                    ramAnimaCtl.forward();
-                  },
-                  child: Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.identity(),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(100.0),
-                            ),
-                            boxShadow: <BoxShadow>[
-                              BoxShadow(
-                                  color: Colors.black12.withOpacity(0.2),
-                                  offset: Offset(0.0, pitch * 8), //阴影xy轴偏移量
-                                  blurRadius: 8.0, //阴影模糊程度
-                                  spreadRadius: 1.0 //阴影扩散程度
-                                  ),
-                            ],
+                  simple(context),
+                  cpugpu(context),
+                  // const Text(
+                  //   '运行内存:',
+                  //   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  // ),
+                  // SizedBox(
+                  //   width: 100,
+                  //   height: 100,
+                  //   child: GestureDetector(
+                  //     onTap: () async {
+                  //       // showToast('清理中');
+                  //       await ramAnimaCtl.reverse();
+                  //       await exec(
+                  //           '''BUSYBOX=/data/data/com.nightmare/files/usr/bin/busybox
+                  //       \$BUSYBOX clear
+                  //       \$BUSYBOX echo ''
+                  //       \$BUSYBOX free | \$BUSYBOX awk '/Mem/{print '>>>...Memory Before Boosting: '\$4/1024' MB';}'
+                  //       \$BUSYBOX echo ''
+                  //       \$BUSYBOX echo 'Dropping cache'
+                  //       \$BUSYBOX sync
+                  //       \$BUSYBOX sysctl -w vm.drop_caches=3
+                  //       dc=/proc/sys/vm/drop_caches
+                  //       dc_v=`cat \$dc`
+                  //       if [ '\$dc_v' -gt 1 ]; then
+                  //       \$BUSYBOX sysctl -w vm.drop_caches=1
+                  //       fi
+                  //       \$BUSYBOX echo ''
+                  //       \$BUSYBOX echo ''
+                  //       \$BUSYBOX echo 'BOOSTED!!!'
+                  //       \$BUSYBOX echo ''
+                  //       \$BUSYBOX echo ''
+                  //       \$BUSYBOX free | \$BUSYBOX awk '/Mem/{print '>>>...Memory After Boosting : '\$4/1024' MB';}'
+                  //       \$BUSYBOX echo 'RAM boost \$( date +'%m-%d-%Y %H:%M:%S' )'
+                  //       ''');
+                  //       // final Map<String, int> info = await PlatformChannel
+                  //       //     .SystemInfo.invokeMethod<Map<String, int>>('');
+                  //       // final int totalMem = info['totalMem'];
+                  //       // final int availMem = info['availMem'];
+                  //       // ramScale = Tween<double>(
+                  //       //         begin: 0.0, end: (totalMem - availMem) / totalMem)
+                  //       //     .animate(CurvedAnimation(
+                  //       //         parent: ramAnimaCtl, curve: Curves.easeIn));
+                  //       ramAnimaCtl.forward();
+                  //     },
+                  //     child: Transform(
+                  //       alignment: Alignment.center,
+                  //       transform: Matrix4.identity(),
+                  //       child: Stack(
+                  //         alignment: Alignment.center,
+                  //         children: <Widget>[
+                  //           Container(
+                  //             width: 100,
+                  //             height: 100,
+                  //             decoration: BoxDecoration(
+                  //               color: Colors.transparent,
+                  //               borderRadius: const BorderRadius.all(
+                  //                 Radius.circular(100.0),
+                  //               ),
+                  //               boxShadow: <BoxShadow>[
+                  //                 BoxShadow(
+                  //                     color: Colors.black12.withOpacity(0.2),
+                  //                     offset: Offset(0.0, pitch * 8), //阴影xy轴偏移量
+                  //                     blurRadius: 8.0, //阴影模糊程度
+                  //                     spreadRadius: 1.0 //阴影扩散程度
+                  //                     ),
+                  //               ],
+                  //             ),
+                  //           ),
+                  //           Material(
+                  //             borderRadius: const BorderRadius.all(
+                  //               Radius.circular(100.0),
+                  //             ),
+                  //             elevation: 0.0,
+                  //             child: FlutterWaveLoading(
+                  //               isOval: true,
+                  //               color: ramCircleColor,
+                  //               progress: ramScale.value,
+                  //               width: 100,
+                  //               height: 100,
+                  //             ),
+                  //           ),
+                  //           Center(
+                  //             child: Text(
+                  //               toPercentage(ramScale.value),
+                  //               style: TextStyle(
+                  //                 fontWeight: FontWeight.bold,
+                  //                 color: isLightColor(ramCircleColor.value)
+                  //                     ? Theme.of(context).textTheme.bodyText2.color
+                  //                     : Colors.white,
+                  //               ),
+                  //             ),
+                  //           )
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  battery(context),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    width: 100,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.08),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '内存',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
-                        Material(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(100.0),
-                          ),
-                          elevation: 0.0,
-                          child: FlutterWaveLoading(
-                            isOval: true,
-                            color: ramCircleColor,
-                            progress: ramScale.value,
-                            width: 100,
-                            height: 100,
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            toPercentage(ramScale.value),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isLightColor(ramCircleColor.value)
-                                  ? Theme.of(context).textTheme.bodyText2.color
-                                  : Colors.white,
-                            ),
-                          ),
-                        )
+                        SizedBox(height: 12),
                       ],
                     ),
                   ),
-                ),
+                  Container(
+                    width: 100,
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.08),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '储存',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 100,
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.08),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '网络',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-          _CpuInfo(),
+          const SizedBox(height: 12),
+          GetBuilder<DeviceController>(builder: (_) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: LayoutBuilder(builder: (context, con) {
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    if (controller.cpuInfos.isEmpty)
+                      const SizedBox()
+                    else
+                      for (int i = 0;
+                          i < controller.cpuInfos.last.cpuInfos.length;
+                          i++)
+                        Container(
+                          width: (con.maxWidth - 12 * 3) / 4,
+                          // height: 100,
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.08),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(controller
+                                      .cpuInfos.last.cpuInfos[i].frequency
+                                      .toString() +
+                                  "Mhz"),
+                              SizedBox(height: 4),
+                              Builder(builder: (context) {
+                                List<int> datas = [];
+                                for (CpuInfo info in controller.cpuInfos) {
+                                  datas.add(info.cpuInfos[i].frequency);
+                                }
+                                return LineChartSample2(
+                                  datas: datas,
+                                );
+                              }),
+                              SizedBox(height: 12),
+                            ],
+                          ),
+                        ),
+                  ],
+                );
+              }),
+            );
+          }),
+          // _CpuInfo(),
         ],
       ),
     );
   }
-}
 
-// class CpuEntity {
-//   String scaling_cur_freq;
-//   String busy;
-//   String scaling_min_freq;
-//   String scaling_max_freq;
-// }
-
-class _CpuInfo extends StatefulWidget {
-  @override
-  __CpuInfoState createState() => __CpuInfoState();
-}
-
-class __CpuInfoState extends State<_CpuInfo> {
-  @override
-  Widget build(BuildContext context) {
-    return CpuInfoBody();
-  }
-}
-
-class CpuInfoBody extends StatefulWidget {
-  @override
-  _CpuInfoBodyState createState() => _CpuInfoBodyState();
-}
-
-class _CpuInfoBodyState extends State<CpuInfoBody>
-    with TickerProviderStateMixin {
-  AnimationController animaCtl;
-  GeneralStat cpuBusyRadio;
-
-  @override
-  void initState() {
-    super.initState();
-    animaCtl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
-    getCpuInfo();
-  }
-
-  Future<void> getCpuInfo() async {
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-
-    while (mounted) {
-      String globalStateRaw = File(
-        '/sys/devices/system/cpu/cpu0/core_ctl/global_state',
-      ).readAsStringSync();
-      // print(globalStateRaw);
-      RegExp busy = RegExp('Busy.*');
-      Iterable<RegExpMatch> allMatches = busy.allMatches(globalStateRaw);
-      String cpuInfo = '';
-      for (var match in allMatches) {
-        cpuInfo += match.group(0).replaceAll('Busy%: ', '') + '\n';
-        print(match.group(0));
-      }
-      // print(cpuInfo);
-      cpuBusyRadio.clear();
-      cpuBusyRadio.setBusyRatio(cpuInfo);
-
-      await Future<void>.delayed(const Duration(milliseconds: 1000));
-    }
-    // String result = await CustomProcess.exec(
-    //     'cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq\n' +
-    //         'cat /sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq\n' +
-    //         'cat /sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq\n' +
-    //         'cat /sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq\n' +
-    //         'cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq\n' +
-    //         'cat /sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq\n' +
-    //         'cat /sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq\n' +
-    //         'cat /sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq\n' );
-    // 'cat /sys/devices/system/cpu/cpu0/core_ctl/global_state | busybox grep \'Busy\' | busybox sed 's/Busy%: //g'');
-
-    // print(result);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    cpuBusyRadio = Get.find();
-    // print(cpuBusyRadio.cpuBusyRatio);
-    return Column(
-      children: <Widget>[
-        const SizedBox(
-          height: 20.0,
+  Widget simple(BuildContext context) {
+    return GetBuilder<DeviceController>(builder: (_) {
+      return Container(
+        padding: EdgeInsets.all(10),
+        width: 160,
+        height: 130,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
         ),
-
-        const DividerAndText('四小核'),
-        SizedBox(
-          height: 100.0,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 4,
-            itemBuilder: (BuildContext c, int i) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 6.0, right: 6.0),
-                child: _SingleCpu(
-                  cpuIndex: i,
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(
-          height: 20.0,
-        ),
-        const DividerAndText('四大核'),
-        SizedBox(
-          height: 100.0,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 4,
-            itemBuilder: (BuildContext c, int i) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 6.0, right: 6.0),
-                child: _SingleCpu(
-                  cpuIndex: i + 4,
-                ),
-              );
-            },
-          ),
-        ),
-
-        // SizedBox(
-        //   height: 100.0,
-        //   child: ListView.builder(
-        //     scrollDirection: Axis.horizontal,
-        //     itemCount: 4,
-        //     itemBuilder: (c, i) {
-        //       return Padding(
-        //         padding: EdgeInsets.only(left: 6.0, right: 6.0),
-        //         child: FlutterWaveLoading(
-        //           borderRadius: 16.0,
-        //           color: Colors.green,
-        //           progress: 0.8,
-        //           width: deviceWidth / 4 - 12.0,
-        //           height: 100,
-        //         ),
-        //       );
-        //     },
-        //   ),
-        // ),
-      ],
-    );
-  }
-}
-
-class _SingleCpu extends StatefulWidget {
-  const _SingleCpu({Key key, this.cpuIndex}) : super(key: key);
-  //是第几个CPU
-  final int cpuIndex;
-
-  @override
-  __SingleCpuState createState() => __SingleCpuState();
-}
-
-class __SingleCpuState extends State<_SingleCpu>
-    with SingleTickerProviderStateMixin {
-  AnimationController animationController;
-  Animation<double> animation;
-
-  @override
-  void initState() {
-    super.initState();
-    animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
-    animation =
-        Tween<double>(begin: 0.0, end: 0.0).animate(animationController);
-    whileGetInfo();
-  }
-
-  Future<void> whileGetInfo() async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    while (mounted) {
-      final double curRatio =
-          generalStat.cpuBusyRatio[widget.cpuIndex].toDouble() / 100;
-      animation = Tween<double>(
-        begin: animation.value,
-        end: curRatio,
-      ).animate(animationController);
-      animationController.reset();
-      animationController.forward();
-      await Future<void>.delayed(
-        const Duration(milliseconds: 1000),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    animationController.dispose();
-    super.dispose();
-  }
-
-  GeneralStat generalStat;
-  @override
-  Widget build(BuildContext context) {
-    generalStat = Get.find();
-    final double deviceWidth = MediaQuery.of(context).size.width;
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (BuildContext ctx, Widget child) {
-        final Color cpuColor = getColor(animation.value);
-        return Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            FlutterWaveLoading(
-              borderRadius: 8.0,
-              color: cpuColor,
-              progress: animation.value,
-              width: deviceWidth / 4 - 12.0,
-              height: 100,
-            ),
-            Center(
-              child: Text(
-                toPercentage(animation.value),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: isLightColor(cpuColor.value)
-                      ? Theme.of(context).textTheme.bodyText2.color
-                      : Colors.white,
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              child: Row(
+                children: [
+                  Text('设备ID ' + (controller.info.deviceId ?? '')),
+                ],
               ),
             ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 50.0),
-                child: Text(
-                  'CPU:${widget.cpuIndex + 1}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isLightColor(cpuColor.value)
-                        ? Theme.of(context).textTheme.bodyText2.color
-                        : Colors.white,
-                  ),
-                ),
+            SizedBox(height: 4),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
               ),
-            )
+              padding: EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.adb),
+                  SizedBox(width: 4),
+                  Text('Android ' + controller.info.androidVersion.toString()),
+                ],
+              ),
+            ),
           ],
-        );
-      },
+        ),
+      );
+    });
+  }
+
+  Widget battery(BuildContext context) {
+    return GetBuilder<DeviceController>(builder: (_) {
+      return Container(
+        padding: EdgeInsets.all(10),
+        width: 160,
+        height: 130,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '电池',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            SizedBox(height: 8),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LayoutBuilder(builder: (context, con) {
+                    return Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Container(
+                          width: 32,
+                          height: con.maxHeight,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .primaryColor
+                                .withOpacity(0.11),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        Container(
+                          width: 32,
+                          height: (controller.batteryInfo.level ?? 1) /
+                              100 *
+                              con.maxHeight,
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${controller.batteryInfo.level ?? ''}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                  SizedBox(width: 4),
+                  LayoutBuilder(builder: (context, con) {
+                    return SizedBox(
+                      height: con.maxHeight,
+                      width: 100,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.11),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${controller.batteryInfo.temperature ?? ''} ℃',
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.11),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '未充电',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  SizedBox cpugpu(BuildContext context) {
+    return SizedBox(
+      width: 130,
+      height: 130,
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+              ),
+              child: Row(
+                children: <Widget>[
+                  const Text(
+                    'CPU:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  AnimatedBuilder(
+                    animation: controller.cpuUsed,
+                    builder: (BuildContext ctx, Widget child) {
+                      cpuProgressColor = getColor(controller.cpuUsed.value);
+                      // print('build');
+                      return Center(
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: CustomPaint(
+                            size: const Size(50.0, 50.0),
+                            painter: CircleProgress(
+                              controller.cpuUsed.value,
+                              6.0,
+                              cpuProgressColor,
+                              Theme.of(context).primaryColor.withOpacity(0.11),
+                            ),
+                            child: Center(
+                              child: Text(
+                                toPercentage(controller.cpuUsed.value),
+                                style: const TextStyle(
+                                    fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 8.0,
+          ),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+              ),
+              child: Row(
+                children: <Widget>[
+                  const Text(
+                    'GPU:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  AnimatedBuilder(
+                    animation: controller.cpuUsed,
+                    builder: (BuildContext ctx, Widget child) {
+                      cpuProgressColor = getColor(
+                        controller.gpuUsed.value,
+                      );
+                      // print('build');
+                      return Center(
+                        child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: CustomPaint(
+                            size: const Size(50.0, 50.0),
+                            painter: CircleProgress(
+                              controller.gpuUsed.value,
+                              6.0,
+                              cpuProgressColor,
+                              Theme.of(context).primaryColor.withOpacity(0.11),
+                            ),
+                            child: Center(
+                              child: Text(
+                                toPercentage(controller.gpuUsed.value),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

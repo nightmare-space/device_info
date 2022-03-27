@@ -53,28 +53,27 @@ class _SystemInfoState extends State<SystemInfo> {
   }
 
   Future<void> initSystem() async {
-    props = await NiProcess.exec('getprop');
+    props = await exec('getprop');
     for (final String key in keys.keys) {
       if (keys[key] != null) {
         values[key] = getValueFromProps(keys[key]);
       }
     }
-    final String uptime = (await NiProcess.exec('cat /proc/uptime'))
-        .split(' ')
-        .first
-        .replaceAll('.', '');
+    String time = await exec('cat /proc/uptime');
+    final String uptime =
+        (await exec('cat /proc/uptime')).split(' ').first.replaceAll('.', '');
     print('uptime->$uptime');
     DateTime dateTime = DateTime(0, 0, 0, 0, 0, int.tryParse(uptime) ~/ 100);
     values['已开机时长'] =
         '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}';
-    values['内核信息'] = await NiProcess.exec('cat /proc/version');
-    final bool isRoot = (await NiProcess.exec('which su')) != '';
+    values['内核信息'] = await exec('cat /proc/version');
+    final bool isRoot = (await exec('which su')) != '';
     if (isRoot) {
       values['ROOT权限'] = '已获取ROOT权限';
     } else {
       values['ROOT权限'] = '未获取ROOT权限';
     }
-    values['ROOT版本'] = await NiProcess.exec('su -v');
+    values['ROOT版本'] = await exec('su -v');
     final String sysBbPath = (await Process.run(
             '/system/bin/which', <String>['busybox'],
             includeParentEnvironment: true))
@@ -86,7 +85,7 @@ class _SystemInfoState extends State<SystemInfo> {
     } else {
       values['系统Busybox路径'] = '未发现Busybox';
     }
-    final String appBbPath = await NiProcess.exec('which busybox');
+    final String appBbPath = await exec('which busybox');
     final bool appHasBusybox = appBbPath != '';
     if (appHasBusybox) {
       values['工具箱Busybox路径'] = appBbPath;

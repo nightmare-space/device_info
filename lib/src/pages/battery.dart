@@ -36,7 +36,7 @@ class _BatteryState extends State<Battery> {
 
   Future<void> init() async {
     while (mounted) {
-      batteryInfos = await NiProcess.exec('dumpsys battery');
+      batteryInfos = await exec('dumpsys battery');
       for (final String key in keys.keys) {
         if (keys[key] != null) {
           values[key] = getValueFromProps(keys[key]);

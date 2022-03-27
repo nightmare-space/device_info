@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class CircleProgress extends CustomPainter {
-  CircleProgress(this.progress, this._size, this.color);
+  CircleProgress(this.progress, this._size, this.color, this.background);
   Paint _paintBackground;
   Paint _paintFore;
   Color color;
+  Color background;
   double progress;
   final double _size;
 
@@ -24,7 +25,7 @@ class CircleProgress extends CustomPainter {
       radius: size.width / 2 - _size,
     );
     _paintBackground = Paint()
-      ..color = Colors.grey
+      ..color = background
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke
       ..strokeWidth = _size
