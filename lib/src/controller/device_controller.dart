@@ -49,8 +49,8 @@ class DeviceController extends GetxController {
     catResult = catResult.trim();
     // Log.i('GPU : $catResult');
     List tmp = catResult.split(RegExp('\\s+'));
-    int first = int.tryParse(tmp[0]);
-    int second = int.tryParse(tmp[1]);
+    int first = int.tryParse(tmp[0].toString());
+    int second = int.tryParse(tmp[1].toString());
     double radio = (second == 0) ? 0 : first / second;
     double preValue = gpuUsed.value;
     gpuUsed = Tween<double>(
