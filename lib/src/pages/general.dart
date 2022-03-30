@@ -102,9 +102,9 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: SizedBox(
-              height: 130,
               child: Wrap(
                 spacing: 12,
+                runSpacing: 12,
                 children: <Widget>[
                   simple(context),
                   cpugpu(context),
@@ -296,7 +296,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                         Container(
                           width: (con.maxWidth - 12 * 3) / 4,
                           // height: 100,
-                          padding: EdgeInsets.all(10),
+                          padding: EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: Theme.of(context)
@@ -307,6 +307,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              SizedBox(height: 4),
                               Text(controller
                                       .cpuInfos.last.cpuInfos[i].frequency
                                       .toString() +
@@ -321,7 +322,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                                   datas: datas,
                                 );
                               }),
-                              SizedBox(height: 12),
+                              SizedBox(height: 8),
                             ],
                           ),
                         ),
@@ -360,7 +361,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
               ),
               child: Row(
                 children: [
-                  Text('设备ID ' + (controller.info.deviceId ?? '')),
+                  Text('ID ' + (controller.info.deviceId ?? '')),
                 ],
               ),
             ),
@@ -379,6 +380,22 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   Icon(Icons.adb),
                   SizedBox(width: 4),
                   Text('Android ' + controller.info.androidVersion.toString()),
+                ],
+              ),
+            ),
+            SizedBox(height: 4),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              child: Row(
+                children: [
+                  Text('已开机 ' + controller.info.uptime.toString()),
                 ],
               ),
             ),

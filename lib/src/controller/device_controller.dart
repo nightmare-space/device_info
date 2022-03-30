@@ -22,7 +22,7 @@ class DeviceController extends GetxController {
   SimpleInfo info = SimpleInfo();
 
   void pollingDeviceCPUGPU() {
-    Timer.periodic(Duration(milliseconds: 1000), (timer) {
+    Timer.periodic(const Duration(milliseconds: 1000), (timer) {
       getGpuRatio();
       getCpuRatio();
       getBatteryInfo();
@@ -30,13 +30,29 @@ class DeviceController extends GetxController {
     });
   }
 
+  String _twoDigits(int n) {
+    if (n >= 10) {
+      return '$n';
+    }
+    return '0$n';
+  }
+
+  // 获取简单信息
   Future<void> getSimpleInfo() async {
-    String deviceId = await execCmd(
+    final String deviceId = await execCmd(
       '$cmdPrefix getprop ro.product.model',
     );
-    String androidVersion = await execCmd(
+    final String androidVersion = await execCmd(
       '$cmdPrefix getprop ro.build.version.release',
     );
+    // final String powerTime;
+    String uptime = await execCmd('$cmdPrefix cat /proc/uptime');
+    uptime = uptime.split(' ').first.replaceAll('.', '');
+    print('uptime->$uptime');
+    final DateTime dateTime =
+        DateTime(0, 0, 0, 0, 0, int.tryParse(uptime) ~/ 100);
+    info.uptime =
+        '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}';
     info.androidVersion = int.tryParse(androidVersion);
     info.deviceId = deviceId;
     update();
