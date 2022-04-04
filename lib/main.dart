@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:global_repository/global_repository.dart';
 
 import 'device_info.dart';
-import 'src/controller/device_controller.dart';
+import 'controller/device_controller.dart';
 
 void main() {
   runApp(MyApp());

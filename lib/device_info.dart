@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:global_repository/global_repository.dart';
-export 'src/home.dart';
+export 'home.dart';
 export 'global/global.dart';
 
 // class DeviceInfo {

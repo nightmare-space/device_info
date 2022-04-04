@@ -11,7 +11,7 @@ class CpuInfo {
 }
 
 class SingleCpuInfo {
-  final int frequency;
-
   SingleCpuInfo(this.frequency);
+  
+  final int frequency;
 }

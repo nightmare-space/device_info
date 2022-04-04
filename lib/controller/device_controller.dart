@@ -4,6 +4,7 @@ import 'package:device_info/device_info.dart';
 import 'package:device_info/global/global.dart';
 import 'package:device_info/model/battery_info.dart';
 import 'package:device_info/model/cpu_info.dart';
+import 'package:device_info/model/ram_info.dart';
 import 'package:device_info/model/simple_info.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,6 +21,7 @@ class DeviceController extends GetxController {
   List<CpuInfo> cpuInfos = [];
   String get cmdPrefix => 'adb -s ${Global().device} shell';
   SimpleInfo info = SimpleInfo();
+  RamInfo ramInfo = RamInfo(0, 0);
 
   void pollingDeviceCPUGPU() {
     Timer.periodic(const Duration(milliseconds: 1000), (timer) {
@@ -27,6 +29,7 @@ class DeviceController extends GetxController {
       getCpuRatio();
       getBatteryInfo();
       getCpuInfo();
+      getRamInfo();
     });
   }
 
@@ -56,6 +59,19 @@ class DeviceController extends GetxController {
     info.androidVersion = int.tryParse(androidVersion);
     info.deviceId = deviceId;
     update();
+  }
+
+  Future<void> getRamInfo() async {
+    final String meminfo = await execCmd(
+      '$cmdPrefix cat /proc/meminfo',
+    );
+    List<String> lines = meminfo.split('\n');
+    String ram = lines.first.split(RegExp('\\s+'))[1];
+    String free = lines[2].split(RegExp('\\s+'))[1];
+    ramInfo.total = int.tryParse(ram);
+    ramInfo.free = int.tryParse(free);
+    update();
+    Log.i('ram :  $ram');
   }
 
   Future<void> getGpuRatio() async {

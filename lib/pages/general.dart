@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 import 'package:device_info/model/cpu_info.dart';
-import 'package:device_info/src/canvas/circle_progress.dart';
-import 'package:device_info/src/controller/device_controller.dart';
-import 'package:device_info/src/provider/general_stat.dart';
-import 'package:device_info/src/utils/get_ratio_color.dart';
-import 'package:device_info/src/utils/percentage_util.dart';
-import 'package:device_info/src/widgets/flutter_wave.dart';
-import 'package:device_info/src/widgets/night_divider.dart';
+import 'package:device_info/canvas/circle_progress.dart';
+import 'package:device_info/controller/device_controller.dart';
+import 'package:device_info/provider/general_stat.dart';
+import 'package:device_info/utils/get_ratio_color.dart';
+import 'package:device_info/utils/percentage_util.dart';
+import 'package:device_info/widgets/flutter_wave.dart';
+import 'package:device_info/widgets/night_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -91,7 +91,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
   double pitch = 0.0;
   double rotated = 0.0;
   Color cpuProgressColor = const Color.fromRGBO(0, 255, 0, 1);
-
+  double getPadding = 10;
   @override
   Widget build(BuildContext context) {
     // print('build');
@@ -100,7 +100,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
       body: ListView(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: getPadding),
             child: SizedBox(
               child: Wrap(
                 spacing: 12,
@@ -108,16 +108,6 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                 children: <Widget>[
                   simple(context),
                   cpugpu(context),
-                  // const Text(
-                  //   '运行内存:',
-                  //   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                  // ),
-                  // SizedBox(
-                  //   width: 100,
-                  //   height: 100,
-                  //   child: GestureDetector(
-                  //     onTap: () async {
-                  //       // showToast('清理中');
                   //       await ramAnimaCtl.reverse();
                   //       await exec(
                   //           '''BUSYBOX=/data/data/com.nightmare/files/usr/bin/busybox
@@ -141,139 +131,55 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   //       \$BUSYBOX free | \$BUSYBOX awk '/Mem/{print '>>>...Memory After Boosting : '\$4/1024' MB';}'
                   //       \$BUSYBOX echo 'RAM boost \$( date +'%m-%d-%Y %H:%M:%S' )'
                   //       ''');
-                  //       // final Map<String, int> info = await PlatformChannel
-                  //       //     .SystemInfo.invokeMethod<Map<String, int>>('');
-                  //       // final int totalMem = info['totalMem'];
-                  //       // final int availMem = info['availMem'];
-                  //       // ramScale = Tween<double>(
-                  //       //         begin: 0.0, end: (totalMem - availMem) / totalMem)
-                  //       //     .animate(CurvedAnimation(
-                  //       //         parent: ramAnimaCtl, curve: Curves.easeIn));
-                  //       ramAnimaCtl.forward();
-                  //     },
-                  //     child: Transform(
-                  //       alignment: Alignment.center,
-                  //       transform: Matrix4.identity(),
-                  //       child: Stack(
-                  //         alignment: Alignment.center,
-                  //         children: <Widget>[
-                  //           Container(
-                  //             width: 100,
-                  //             height: 100,
-                  //             decoration: BoxDecoration(
-                  //               color: Colors.transparent,
-                  //               borderRadius: const BorderRadius.all(
-                  //                 Radius.circular(100.0),
-                  //               ),
-                  //               boxShadow: <BoxShadow>[
-                  //                 BoxShadow(
-                  //                     color: Colors.black12.withOpacity(0.2),
-                  //                     offset: Offset(0.0, pitch * 8), //阴影xy轴偏移量
-                  //                     blurRadius: 8.0, //阴影模糊程度
-                  //                     spreadRadius: 1.0 //阴影扩散程度
-                  //                     ),
-                  //               ],
-                  //             ),
-                  //           ),
-                  //           Material(
-                  //             borderRadius: const BorderRadius.all(
-                  //               Radius.circular(100.0),
-                  //             ),
-                  //             elevation: 0.0,
-                  //             child: FlutterWaveLoading(
-                  //               isOval: true,
-                  //               color: ramCircleColor,
-                  //               progress: ramScale.value,
-                  //               width: 100,
-                  //               height: 100,
-                  //             ),
-                  //           ),
-                  //           Center(
-                  //             child: Text(
-                  //               toPercentage(ramScale.value),
-                  //               style: TextStyle(
-                  //                 fontWeight: FontWeight.bold,
-                  //                 color: isLightColor(ramCircleColor.value)
-                  //                     ? Theme.of(context).textTheme.bodyText2.color
-                  //                     : Colors.white,
-                  //               ),
-                  //             ),
-                  //           )
-                  //         ],
+
+                  battery(context),
+                  ram(context),
+                  // Container(
+                  //   width: 100,
+                  //   padding: EdgeInsets.all(10),
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(12),
+                  //     color: Theme.of(context)
+                  //         .colorScheme
+                  //         .primary
+                  //         .withOpacity(0.08),
+                  //   ),
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       Text(
+                  //         '储存',
+                  //         style: TextStyle(
+                  //           color: Theme.of(context).primaryColor,
+                  //         ),
                   //       ),
-                  //     ),
+                  //       SizedBox(height: 12),
+                  //     ],
                   //   ),
                   // ),
-                  battery(context),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    width: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.08),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '内存',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 100,
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.08),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '储存',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 100,
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.08),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '网络',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
+                  // Container(
+                  //   width: 100,
+                  //   padding: EdgeInsets.all(10),
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(12),
+                  //     color: Theme.of(context)
+                  //         .colorScheme
+                  //         .primary
+                  //         .withOpacity(0.08),
+                  //   ),
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       Text(
+                  //         '网络',
+                  //         style: TextStyle(
+                  //           color: Theme.of(context).primaryColor,
+                  //         ),
+                  //       ),
+                  //       SizedBox(height: 12),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -281,7 +187,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
           const SizedBox(height: 12),
           GetBuilder<DeviceController>(builder: (_) {
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: EdgeInsets.symmetric(horizontal: getPadding),
               child: LayoutBuilder(builder: (context, con) {
                 return Wrap(
                   spacing: 12,
@@ -308,10 +214,24 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               SizedBox(height: 4),
-                              Text(controller
-                                      .cpuInfos.last.cpuInfos[i].frequency
-                                      .toString() +
-                                  "Mhz"),
+                              Row(
+                                children: [
+                                  Text(
+                                    controller
+                                        .cpuInfos.last.cpuInfos[i].frequency
+                                        .toString(),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Mhz",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               SizedBox(height: 4),
                               Builder(builder: (context) {
                                 List<int> datas = [];
@@ -337,11 +257,98 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     );
   }
 
+  Container ram(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      height: 130,
+      width: getWidth(),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '内存',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          SizedBox(height: 4),
+          GetBuilder<DeviceController>(builder: (_) {
+            return Expanded(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      width: 64,
+                      height: 64,
+                      child: CustomPaint(
+                        size: const Size(50.0, 50.0),
+                        painter: CircleProgress(
+                          controller.ramInfo.radio,
+                          6.0,
+                          cpuProgressColor,
+                          Theme.of(context).primaryColor.withOpacity(0.11),
+                        ),
+                        child: Center(
+                          child: Text(
+                            toPercentage(controller.ramInfo.radio),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        FileSizeUtils.getFileSize(
+                            controller.ramInfo.free * 1000),
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      Text('/'),
+                      Text(
+                        FileSizeUtils.getFileSize(
+                            controller.ramInfo.total * 1000),
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  double getWidth() {
+    double deviceWidth = MediaQuery.of(context).size.width;
+    if (deviceWidth > 800) {
+      return 160;
+    }
+    return (deviceWidth - 32) / 2;
+  }
+
   Widget simple(BuildContext context) {
     return GetBuilder<DeviceController>(builder: (_) {
       return Container(
         padding: EdgeInsets.all(10),
-        width: 160,
+        width: getWidth(),
         height: 130,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -350,53 +357,63 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              child: Row(
-                children: [
-                  Text('ID ' + (controller.info.deviceId ?? '')),
-                ],
-              ),
-            ),
-            SizedBox(height: 4),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.adb),
-                  SizedBox(width: 4),
-                  Text('Android ' + controller.info.androidVersion.toString()),
-                ],
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    Text('ID ' + (controller.info.deviceId ?? '')),
+                  ],
+                ),
               ),
             ),
             SizedBox(height: 4),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    // Icon(Icons.adb),
+                    // SizedBox(width: 4),
+                    Text(
+                        'Android ' + controller.info.androidVersion.toString()),
+                  ],
+                ),
               ),
-              padding: EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              child: Row(
-                children: [
-                  Text('已开机 ' + controller.info.uptime.toString()),
-                ],
+            ),
+            SizedBox(height: 4),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color:
+                      Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    Text('已开机 ' + controller.info.uptime.toString()),
+                  ],
+                ),
               ),
             ),
           ],
@@ -409,7 +426,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     return GetBuilder<DeviceController>(builder: (_) {
       return Container(
         padding: EdgeInsets.all(10),
-        width: 160,
+        width: getWidth(),
         height: 130,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -445,7 +462,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                         ),
                         Container(
                           width: 32,
-                          height: (controller.batteryInfo.level ?? 1) /
+                          height: (controller.batteryInfo.level ?? 0) /
                               100 *
                               con.maxHeight,
                           decoration: BoxDecoration(
@@ -527,7 +544,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
 
   SizedBox cpugpu(BuildContext context) {
     return SizedBox(
-      width: 130,
+      width: getWidth(),
       height: 130,
       child: Column(
         children: <Widget>[

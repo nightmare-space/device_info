@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/utils.dart';
 
 class LineChartSample2 extends StatefulWidget {
   const LineChartSample2({Key key, this.datas}) : super(key: key);
@@ -26,12 +27,13 @@ class _LineChartSample2State extends State<LineChartSample2> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(
-                Radius.circular(10),
+                Radius.circular(4),
               ),
               color: Theme.of(context).primaryColor.withOpacity(0.11),
             ),
             child: LineChart(
               mainData(),
+              swapAnimationDuration: Duration.zero,
             ),
           ),
         ),
@@ -46,6 +48,9 @@ class _LineChartSample2State extends State<LineChartSample2> {
       fontSize: 8,
     );
     String text;
+    if (GetPlatform.isAndroid) {
+      return Container();
+    }
     switch (value.toInt()) {
       case 1000:
         text = '1000';
@@ -100,7 +105,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
             showTitles: true,
             interval: 1,
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 30,
+            reservedSize: GetPlatform.isAndroid ? 0 : 30,
           ),
         ),
         bottomTitles: AxisTitles(
