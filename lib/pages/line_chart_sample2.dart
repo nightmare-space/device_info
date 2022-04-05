@@ -11,10 +11,10 @@ class LineChartSample2 extends StatefulWidget {
 }
 
 class _LineChartSample2State extends State<LineChartSample2> {
-  List<Color> gradientColors = [
-    const Color(0xff23b6e6),
-    const Color(0xff02d39a),
-  ];
+  // List<Color> gradientColors = [
+  //   const Color(0xff23b6e6),
+  //   const Color(0xff02d39a),
+  // ];
 
   bool showAvg = false;
 
@@ -23,7 +23,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
     return Stack(
       children: <Widget>[
         AspectRatio(
-          aspectRatio: 1.90,
+          aspectRatio: 2.4,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(
@@ -165,7 +165,10 @@ class _LineChartSample2State extends State<LineChartSample2> {
           ],
           isCurved: false,
           gradient: LinearGradient(
-            colors: gradientColors,
+            colors: [
+              Theme.of(context).primaryColor,
+              Theme.of(context).primaryColor,
+            ],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
@@ -177,9 +180,10 @@ class _LineChartSample2State extends State<LineChartSample2> {
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
-              colors: gradientColors
-                  .map((color) => color.withOpacity(0.3))
-                  .toList(),
+              colors: [
+                Theme.of(context).primaryColor,
+                Theme.of(context).primaryColor,
+              ].map((color) => color.withOpacity(0.11)).toList(),
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),

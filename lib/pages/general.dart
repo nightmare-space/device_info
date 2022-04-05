@@ -43,7 +43,9 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     ramScale = Tween<double>(begin: 0.0, end: 1.0)
         .animate(CurvedAnimation(parent: ramAnimaCtl, curve: Curves.easeIn));
     ramScale.addListener(() {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
     controller.cpuAnimaCtl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
@@ -134,29 +136,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
 
                   battery(context),
                   ram(context),
-                  // Container(
-                  //   width: 100,
-                  //   padding: EdgeInsets.all(10),
-                  //   decoration: BoxDecoration(
-                  //     borderRadius: BorderRadius.circular(12),
-                  //     color: Theme.of(context)
-                  //         .colorScheme
-                  //         .primary
-                  //         .withOpacity(0.08),
-                  //   ),
-                  //   child: Column(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       Text(
-                  //         '储存',
-                  //         style: TextStyle(
-                  //           color: Theme.of(context).primaryColor,
-                  //         ),
-                  //       ),
-                  //       SizedBox(height: 12),
-                  //     ],
-                  //   ),
-                  // ),
+                  mem(context),
                   // Container(
                   //   width: 100,
                   //   padding: EdgeInsets.all(10),
@@ -190,7 +170,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
               padding: EdgeInsets.symmetric(horizontal: getPadding),
               child: LayoutBuilder(builder: (context, con) {
                 return Wrap(
-                  spacing: 12,
+                  spacing: 4,
                   runSpacing: 12,
                   children: [
                     if (controller.cpuInfos.isEmpty)
@@ -200,7 +180,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                           i < controller.cpuInfos.last.cpuInfos.length;
                           i++)
                         Container(
-                          width: (con.maxWidth - 12 * 3) / 4,
+                          width: (con.maxWidth - 4 * 3) / 4,
                           // height: 100,
                           padding: EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
@@ -255,6 +235,59 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+  Widget mem(BuildContext context) {
+    return GetBuilder<DeviceController>(builder: (_) {
+      return Container(
+        width: getWidth(),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '储存',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            SizedBox(height: 4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: controller.memInfo.sdUse == 0
+                    ? 0
+                    : controller.memInfo.sdUse / controller.memInfo.sdTotal,
+                backgroundColor:
+                    Theme.of(context).primaryColor.withOpacity(0.08),
+              ),
+            ),
+            SizedBox(height: 4),
+            Row(
+              children: [
+                Text(
+                  FileSizeUtils.getFileSize(controller.memInfo.sdUse * 1024),
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Text('/'),
+                Text(
+                  FileSizeUtils.getFileSize(controller.memInfo.sdTotal * 1024),
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Container ram(BuildContext context) {
