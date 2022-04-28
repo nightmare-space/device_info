@@ -517,55 +517,57 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                     );
                   }),
                   SizedBox(width: 4),
-                  LayoutBuilder(builder: (context, con) {
-                    return SizedBox(
-                      height: con.maxHeight,
-                      width: 100,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .primaryColor
-                                    .withOpacity(0.11),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${controller.batteryInfo.temperature ?? ''} ℃',
+                  Expanded(
+                    child: LayoutBuilder(builder: (context, con) {
+                      return SizedBox(
+                        height: con.maxHeight,
+                        width: con.maxWidth,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.11),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${controller.batteryInfo.temperature ?? ''} ℃',
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 4),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .primaryColor
-                                    .withOpacity(0.11),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '未充电',
+                            SizedBox(height: 4),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.11),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '未充电',
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
                 ],
               ),
             ),
