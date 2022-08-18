@@ -20,13 +20,15 @@ class DeviceController extends GetxController {
   Animation<double> gpuUsed;
   BatteryInfo batteryInfo = BatteryInfo();
   List<CpuInfo> cpuInfos = [];
+  //
   String get cmdPrefix => 'adb -s ${Global().device} shell';
   SimpleInfo info = SimpleInfo();
   RamInfo ramInfo = RamInfo(0, 0);
   MemInfo memInfo = MemInfo();
+  Timer timer;
 
   void pollingDeviceCPUGPU() {
-    Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
       getGpuRatio();
       getCpuRatio();
       getBatteryInfo();
@@ -47,6 +49,7 @@ class DeviceController extends GetxController {
     final String deviceId = await execCmd(
       '$cmdPrefix getprop ro.product.model',
     );
+    // 获取安卓版本
     final String androidVersion = await execCmd(
       '$cmdPrefix getprop ro.build.version.release',
     );
@@ -64,8 +67,8 @@ class DeviceController extends GetxController {
     final String dfResult = await execCmd(
       '$cmdPrefix df',
     );
-    for (String line in dfResult.split('\n')) {
-      List<String> tmp = line.split(RegExp('\\s+'));
+    for (final String line in dfResult.split('\n')) {
+      final List<String> tmp = line.split(RegExp('\\s+'));
       if (tmp.last == '/data') {
         Log.w(tmp);
         memInfo.sdTotal = int.tryParse(tmp[1]);
@@ -73,20 +76,20 @@ class DeviceController extends GetxController {
         update();
       }
     }
-    Log.i(dfResult);
+    // Log.i(dfResult);
   }
 
   Future<void> getRamInfo() async {
     final String meminfo = await execCmd(
       '$cmdPrefix cat /proc/meminfo',
     );
-    List<String> lines = meminfo.split('\n');
-    String ram = lines.first.split(RegExp('\\s+'))[1];
-    String free = lines[2].split(RegExp('\\s+'))[1];
+    final List<String> lines = meminfo.split('\n');
+    final String ram = lines.first.split(RegExp('\\s+'))[1];
+    final String free = lines[2].split(RegExp('\\s+'))[1];
     ramInfo.total = int.tryParse(ram);
     ramInfo.free = int.tryParse(free);
     update();
-    Log.i('ram :  $ram');
+    // Log.i('ram :  $ram');
   }
 
   Future<void> getGpuRatio() async {
@@ -95,22 +98,22 @@ class DeviceController extends GetxController {
     );
     catResult = catResult.trim();
     // Log.i('GPU : $catResult');
-    List tmp = catResult.split(RegExp('\\s+'));
-    int first = int.tryParse(tmp[0].toString());
-    int second = int.tryParse(tmp[1].toString());
-    double radio = (second == 0) ? 0 : first / second;
-    double preValue = gpuUsed.value;
+    final List tmp = catResult.split(RegExp('\\s+'));
+    final int first = int.tryParse(tmp[0].toString());
+    final int second = int.tryParse(tmp[1].toString());
+    final double radio = (second == 0) ? 0 : first / second;
+    final double preValue = gpuUsed.value;
     gpuUsed = Tween<double>(
       begin: preValue,
       end: radio,
     ).animate(gpuAnimaCtl);
-    gpuAnimaCtl.reset();
-    gpuAnimaCtl.forward();
+    gpuAnimaCtl?.reset();
+    gpuAnimaCtl?.forward();
     // update();
   }
 
   Future<void> getCpuRatio() async {
-    String catResult = await execCmd('$cmdPrefix cat /proc/stat');
+    final String catResult = await execCmd('$cmdPrefix cat /proc/stat');
     // Log.i('catResult : $catResult');
     List<String> statList = catResult.split('\n').first.split(RegExp('\\s+'))
       ..removeAt(0);
@@ -141,23 +144,23 @@ class DeviceController extends GetxController {
     final int curBusytime = curTotalTime - idle;
     final double curCpuUsed =
         (curBusytime - preBusyTime) / (curTotalTime - preTotalTime);
-    double preValue = cpuUsed.value;
+    final double preValue = cpuUsed.value;
     cpuUsed = Tween<double>(
       begin: preValue,
       end: curCpuUsed,
     ).animate(cpuAnimaCtl);
-    cpuAnimaCtl.reset();
-    cpuAnimaCtl.forward();
+    cpuAnimaCtl?.reset();
+    cpuAnimaCtl?.forward();
   }
 
   Future<void> getBatteryInfo() async {
-    String result = await execCmd('$cmdPrefix dumpsys battery');
+    final String result = await execCmd('$cmdPrefix dumpsys battery');
     batteryInfo = BatteryInfo.parseFormDumpsys(result);
     update();
   }
 
   Future<void> getCpuInfo() async {
-    String result = await execCmd(
+    final String result = await execCmd(
         '$cmdPrefix cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq\n' +
             'cat /sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq\n' +
             'cat /sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq\n' +
@@ -166,8 +169,8 @@ class DeviceController extends GetxController {
             'cat /sys/devices/system/cpu/cpu5/cpufreq/scaling_cur_freq\n' +
             'cat /sys/devices/system/cpu/cpu6/cpufreq/scaling_cur_freq\n' +
             'cat /sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq\n');
-    CpuInfo info = CpuInfo();
-    for (String line in result.split('\n')) {
+    final CpuInfo info = CpuInfo();
+    for (final String line in result.split('\n')) {
       info.cpuInfos.add(SingleCpuInfo(int.tryParse(line) ~/ 1000));
     }
     cpuInfos.add(info);

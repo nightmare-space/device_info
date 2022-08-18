@@ -28,7 +28,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
       ..getSimpleInfo(),
   );
 
-  MethodChannel systemInfo = MethodChannel('device_info');
+  MethodChannel systemInfo = const MethodChannel('device_info');
   StreamSubscription<void> _streamSubscription;
   AnimationController _animationController;
   AnimationController ramAnimaCtl; //运行内存动画控制器
@@ -56,16 +56,6 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
         vsync: this, duration: const Duration(milliseconds: 300));
     controller.gpuUsed =
         Tween<double>(begin: 0.0, end: 0.0).animate(controller.cpuAnimaCtl);
-
-    // _animationController =
-    //     AnimationController(vsync: this, duration: Duration(milliseconds: 100));
-    // _angelvalue =
-    //     Tween<double>(begin: 0.0, end: 0).animate(_animationController);
-    // _angelvalue.addListener(() {
-    //   // print(_angelvalue.value);
-    //   setState(() {});
-    // });
-    // _animationController.forward();
     initRamInfo();
   }
 
@@ -86,7 +76,10 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     _streamSubscription?.cancel();
     ramAnimaCtl.dispose();
     controller.cpuAnimaCtl.dispose();
+    controller.cpuAnimaCtl = null;
     controller.gpuAnimaCtl.dispose();
+    controller.gpuAnimaCtl = null;
+    controller.timer.cancel();
     super.dispose();
   }
 
@@ -182,7 +175,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                         Container(
                           width: (con.maxWidth - 4 * 3) / 4,
                           // height: 100,
-                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: Theme.of(context)
@@ -193,26 +186,26 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Row(
                                 children: [
                                   Text(
                                     controller
                                         .cpuInfos.last.cpuInfos[i].frequency
                                         .toString(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
                                     ),
                                   ),
-                                  Text(
+                                  const Text(
                                     "Mhz",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 10,
                                     ),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Builder(builder: (context) {
                                 List<int> datas = [];
                                 for (CpuInfo info in controller.cpuInfos) {
@@ -222,7 +215,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                                   datas: datas,
                                 );
                               }),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                             ],
                           ),
                         ),
@@ -241,7 +234,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     return GetBuilder<DeviceController>(builder: (_) {
       return Container(
         width: getWidth(),
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
@@ -255,7 +248,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                 color: Theme.of(context).primaryColor,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
@@ -266,7 +259,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                     Theme.of(context).primaryColor.withOpacity(0.08),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Row(
               children: [
                 Text(
@@ -275,7 +268,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
-                Text('/'),
+                const Text('/'),
                 Text(
                   FileSizeUtils.getFileSize(controller.memInfo.sdTotal * 1024),
                   style: TextStyle(
@@ -292,7 +285,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
 
   Container ram(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       height: 130,
       width: getWidth(),
       decoration: BoxDecoration(
@@ -308,7 +301,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
               color: Theme.of(context).primaryColor,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           GetBuilder<DeviceController>(builder: (_) {
             return Expanded(
               child: Column(
@@ -337,7 +330,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 8,
                   ),
                   Row(
@@ -350,7 +343,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                           color: Theme.of(context).primaryColor,
                         ),
                       ),
-                      Text('/'),
+                      const Text('/'),
                       Text(
                         FileSizeUtils.getFileSize(
                             controller.ramInfo.total * 1000),
@@ -380,7 +373,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
   Widget simple(BuildContext context) {
     return GetBuilder<DeviceController>(builder: (_) {
       return Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         width: getWidth(),
         height: 130,
         decoration: BoxDecoration(
@@ -397,7 +390,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   color:
                       Theme.of(context).colorScheme.primary.withOpacity(0.08),
                 ),
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 4,
                 ),
@@ -408,7 +401,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -416,7 +409,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   color:
                       Theme.of(context).colorScheme.primary.withOpacity(0.08),
                 ),
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 4,
                 ),
@@ -430,7 +423,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -438,7 +431,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   color:
                       Theme.of(context).colorScheme.primary.withOpacity(0.08),
                 ),
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 4,
                 ),
@@ -458,7 +451,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
   Widget battery(BuildContext context) {
     return GetBuilder<DeviceController>(builder: (_) {
       return Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         width: getWidth(),
         height: 130,
         decoration: BoxDecoration(
@@ -474,7 +467,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                 color: Theme.of(context).primaryColor,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,7 +509,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                       ],
                     );
                   }),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: LayoutBuilder(builder: (context, con) {
                       return SizedBox(
@@ -532,7 +525,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                                       .withOpacity(0.11),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 4,
                                 ),
@@ -543,7 +536,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(
@@ -552,11 +545,11 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                                       .withOpacity(0.11),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 4,
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: Text(
                                     '未充电',
                                   ),
@@ -585,7 +578,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
         children: <Widget>[
           Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 4,
               ),
@@ -640,7 +633,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 4,
               ),
