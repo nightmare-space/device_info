@@ -21,27 +21,31 @@ Future<String> execCmd(
   bool throwException = true,
 }) async {
   final List<String> args = cmd.split(' ');
+  final Map<String, String> envir = RuntimeEnvir.envir();
+  envir['TMPDIR'] = RuntimeEnvir.binPath;
+  envir['HOME'] = RuntimeEnvir.binPath;
+  envir['LD_LIBRARY_PATH'] = RuntimeEnvir.binPath;
   ProcessResult execResult;
   if (Platform.isWindows) {
     execResult = await Process.run(
-      RuntimeEnvir.binPath + Platform.pathSeparator + args[0],
+      args[0],
       args.sublist(1),
       environment: RuntimeEnvir.envir(),
       includeParentEnvironment: true,
-      runInShell: false,
+      runInShell: true,
     );
   } else {
     execResult = await Process.run(
       args[0],
       args.sublist(1),
-      environment: RuntimeEnvir.envir(),
+      environment: envir,
       includeParentEnvironment: true,
       runInShell: false,
     );
   }
   if ('${execResult.stderr}'.isNotEmpty) {
     if (throwException) {
-      Log.w('adb stderr -> ${execResult.stderr}');
+      // Log.w('adb stderr -> ${execResult.stderr}');
       throw Exception(execResult.stderr);
     }
   }
