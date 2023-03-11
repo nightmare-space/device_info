@@ -31,8 +31,8 @@ class FlutterWaveLoading extends StatefulWidget {
 
 class _FlutterWaveLoadingState extends State<FlutterWaveLoading>
     with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Animation<double> _anim;
+  late AnimationController _controller;
+  late Animation<double> _anim;
 
   @override
   void initState() {
@@ -48,11 +48,12 @@ class _FlutterWaveLoadingState extends State<FlutterWaveLoading>
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  // todo
+  // @override
+  // void dispose() {
+  //   _controller.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -92,11 +93,11 @@ class BezierPainter extends CustomPainter {
       ..strokeWidth = 2;
     _mainPath = Path();
   }
-  Paint _mainPaint;
-  Path _mainPath;
+  late Paint _mainPaint;
+  late Path _mainPath;
 
   double waveWidth = 80;
-  double wrapHeight;
+  late double wrapHeight;
 
   final double waveHeight;
   final Color color;

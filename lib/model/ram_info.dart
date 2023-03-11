@@ -1,9 +1,9 @@
 class RamInfo {
   RamInfo(this.total, this.free);
 
-  int total;
-  int use;
-  int free;
+  int? total;
+  int? use;
+  int? free;
 
-  double get radio => (total - free) / total;
+  double get radio => (total! - free!) / total!;
 }

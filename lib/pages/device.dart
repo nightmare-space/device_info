@@ -7,7 +7,7 @@ class Device extends StatefulWidget {
 }
 
 class _DeviceState extends State<Device> {
-  String props;
+  late String props;
   Map<String, String> values = <String, String>{};
   Map<String, String> keys = <String, String>{
     '型号': 'ro.product.model',
@@ -23,10 +23,10 @@ class _DeviceState extends State<Device> {
     initSystem();
   }
 
-  String getValueFromProps(String key) {
+  String getValueFromProps(String? key) {
     final List<String> tmp = props.split('\n');
     for (final String line in tmp) {
-      if (line.contains(key)) {
+      if (line.contains(key!)) {
         return line.replaceAll(RegExp('.*\\]:|\\[|\\]'), '');
       }
     }
@@ -68,7 +68,7 @@ class _DeviceState extends State<Device> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width / 2,
                   child: Text(
-                    values[values.keys.elementAt(i)],
+                    values[values.keys.elementAt(i)]!,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

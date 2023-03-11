@@ -17,36 +17,36 @@ class RamSwapInfo {
     swapFullSize = int.tryParse(swapInfoList[1]);
     swapUsed = int.tryParse(swapInfoList[2]);
     swapFree = int.tryParse(swapInfoList[3]);
-    ramFullSizeStr = FileSizeUtils.getFileSize(ramFullSize);
+    ramFullSizeStr = FileSizeUtils.getFileSize(ramFullSize!);
     ramFreeStr = FileSizeUtils.getFileSize(
-        ramFree + int.tryParse(list[2].split(RegExp('\\s+'))[3]));
-    swapFullSizeStr = FileSizeUtils.getFileSize(swapFullSize);
-    swapUsedStr = FileSizeUtils.getFileSize(swapUsed);
+        ramFree! + int.tryParse(list[2].split(RegExp('\\s+'))[3])!);
+    swapFullSizeStr = FileSizeUtils.getFileSize(swapFullSize!);
+    swapUsedStr = FileSizeUtils.getFileSize(swapUsed!);
   }
   RamSwapInfo.fromMap(Map<String, int> map) {
     ramFullSize = map['totalMem'];
-    ramFullSizeStr = FileSizeUtils.getFileSize(ramFullSize, FlashMemoryCell.mb);
+    ramFullSizeStr = FileSizeUtils.getFileSize(ramFullSize!, FlashMemoryCell.mb);
     ramFree = map['availMem'];
-    ramFreeStr = FileSizeUtils.getFileSize(ramFree, FlashMemoryCell.mb);
-    ramUsed = ramFullSize - ramFree;
+    ramFreeStr = FileSizeUtils.getFileSize(ramFree!, FlashMemoryCell.mb);
+    ramUsed = ramFullSize! - ramFree!;
     swapFullSize = map['totalSwap'];
     swapFullSizeStr =
-        FileSizeUtils.getFileSize(swapFullSize, FlashMemoryCell.mb);
+        FileSizeUtils.getFileSize(swapFullSize!, FlashMemoryCell.mb);
     swapUsed = map['usedSwap'];
-    swapUsedStr = FileSizeUtils.getFileSize(swapUsed, FlashMemoryCell.mb);
-    swapFree = swapFullSize - swapUsed;
+    swapUsedStr = FileSizeUtils.getFileSize(swapUsed!, FlashMemoryCell.mb);
+    swapFree = swapFullSize! - swapUsed!;
   }
-  int ramUsed = 1;
-  int ramFullSize = 1;
-  int ramFree = 1;
-  String ramFreeStr;
-  String ramFullSizeStr;
-  int swapUsed = 1;
-  int swapFullSize = 1;
-  int swapFree = 1;
+  int? ramUsed = 1;
+  int? ramFullSize = 1;
+  int? ramFree = 1;
+  String? ramFreeStr;
+  String? ramFullSizeStr;
+  int? swapUsed = 1;
+  int? swapFullSize = 1;
+  int? swapFree = 1;
 
-  String swapUsedStr;
-  String swapFullSizeStr;
+  String? swapUsedStr;
+  String? swapFullSizeStr;
   @override
   String toString() {
     return 'ramUsed:$ramUsed  ramFullSize:$ramFullSize  swapUsed:$swapUsed  swapFullSize$swapFullSize';
@@ -60,10 +60,10 @@ class Memory extends StatefulWidget {
 
 class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
   MethodChannel systemInfo = MethodChannel('device_info');
-  AnimationController animationController;
-  Animation<double> animation;
+  late AnimationController animationController;
+  late Animation<double> animation;
   RamSwapInfo ramSwapInfo = RamSwapInfo();
-  double ramProgress;
+  double? ramProgress;
 
   List<String> rootInfo = <String>[];
   List<String> sdcardInfo = <String>[];
@@ -84,22 +84,22 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
   Future<void> initMemory() async {
     while (mounted) {
       final Map<dynamic, dynamic> systemInfoResult =
-          await systemInfo.invokeMethod<Map<dynamic, dynamic>>('getRamStat');
+          (await systemInfo.invokeMethod<Map<dynamic, dynamic>>('getRamStat'))!;
       final Map<String, int> info = systemInfoResult.cast<String, int>();
       // for (var key in systemInfoResult.keys) {}
       final String freeOut = await exec('free');
       // print(freeOut);
       final RegExp swap = RegExp('Swap.*');
-      final String swapLine = swap.stringMatch(freeOut);
+      final String swapLine = swap.stringMatch(freeOut)!;
       final List<String> swapInfos = swapLine.split(RegExp('\\s+'));
       // print(swapInfos);
-      info['totalSwap'] = int.tryParse(swapInfos[1]) * 1024;
-      info['usedSwap'] = int.tryParse(swapInfos[2]) * 1024;
-      info['availSwap'] = int.tryParse(swapInfos[3]) * 1024;
+      info['totalSwap'] = int.tryParse(swapInfos[1])! * 1024;
+      info['usedSwap'] = int.tryParse(swapInfos[2])! * 1024;
+      info['availSwap'] = int.tryParse(swapInfos[3])! * 1024;
       ramSwapInfo = RamSwapInfo.fromMap(info);
       ramProgress = ramSwapInfo == null
           ? 0.0
-          : ramSwapInfo.ramUsed.toDouble() / ramSwapInfo.ramFullSize.toDouble();
+          : ramSwapInfo.ramUsed!.toDouble() / ramSwapInfo.ramFullSize!.toDouble();
       if (!animationController.isAnimating) {
         animation = Tween<double>(begin: ramProgress, end: ramProgress)
             .animate(animationController);
@@ -133,7 +133,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
           onTap: () async {
             // await CustomProcess.exec("echo 3 > /proc/sys/vm/drop_caches");
             final Map<String, int> info =
-                await systemInfo.invokeMethod<Map<String, int>>('getRamStat');
+                (await systemInfo.invokeMethod<Map<String, int>>('getRamStat'))!;
 
             final String freeOut = await exec('free');
             final List<String> swapInfos = (freeOut.split('\n')
@@ -142,9 +142,9 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
                 .first
                 .split(RegExp('\\s+'));
             // print(swapInfos);
-            info['totalSwap'] = int.tryParse(swapInfos[1]) * 1024;
-            info['usedSwap'] = int.tryParse(swapInfos[2]) * 1024;
-            info['availSwap'] = int.tryParse(swapInfos[3]) * 1024;
+            info['totalSwap'] = int.tryParse(swapInfos[1])! * 1024;
+            info['usedSwap'] = int.tryParse(swapInfos[2])! * 1024;
+            info['availSwap'] = int.tryParse(swapInfos[3])! * 1024;
             ramSwapInfo = RamSwapInfo.fromMap(info);
             animation = Tween<double>(begin: ramProgress, end: 0)
                 .animate(animationController);
@@ -153,8 +153,8 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
             });
             ramProgress = ramSwapInfo == null
                 ? 0.0
-                : ramSwapInfo.ramUsed.toDouble() /
-                    ramSwapInfo.ramFullSize.toDouble();
+                : ramSwapInfo.ramUsed!.toDouble() /
+                    ramSwapInfo.ramFullSize!.toDouble();
 
             animation = Tween<double>(begin: ramProgress, end: 0.0)
                 .animate(animationController);
@@ -242,8 +242,8 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
               child: LinearProgressIndicator(
                 value: ramSwapInfo == null
                     ? 0.0
-                    : ramSwapInfo.swapUsed.toDouble() /
-                        ramSwapInfo.swapFullSize.toDouble(),
+                    : ramSwapInfo.swapUsed!.toDouble() /
+                        ramSwapInfo.swapFullSize!.toDouble(),
                 backgroundColor: Colors.grey,
                 valueColor: AlwaysStoppedAnimation<Color>(
                   Theme.of(context).accentColor,
@@ -288,8 +288,8 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
               borderRadius: BorderRadius.circular(10.0),
               child: LinearProgressIndicator(
                 value: rootInfo.isNotEmpty
-                    ? double.tryParse(rootInfo[1]) /
-                        double.tryParse(rootInfo[2])
+                    ? double.tryParse(rootInfo[1])! /
+                        double.tryParse(rootInfo[2])!
                     : 0,
                 backgroundColor: Colors.grey,
                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -301,7 +301,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
         Align(
           alignment: Alignment.centerRight,
           child: Text(rootInfo.isNotEmpty
-              ? "${FileSizeUtils.getFileSize(int.tryParse(rootInfo[2]) * 1024) ?? "1"}/${FileSizeUtils.getFileSize(int.tryParse(rootInfo[1]) * 1024) ?? "1"}"
+              ? "${FileSizeUtils.getFileSize(int.tryParse(rootInfo[2])! * 1024) ?? "1"}/${FileSizeUtils.getFileSize(int.tryParse(rootInfo[1])! * 1024) ?? "1"}"
               : ''),
         ),
         Row(
@@ -337,8 +337,8 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(10.0),
                 child: LinearProgressIndicator(
                   value: sdcardInfo.isNotEmpty
-                      ? double.tryParse(sdcardInfo[2]) /
-                          double.tryParse(sdcardInfo[1])
+                      ? double.tryParse(sdcardInfo[2])! /
+                          double.tryParse(sdcardInfo[1])!
                       : 0,
                   backgroundColor: Colors.grey,
                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -349,7 +349,7 @@ class _MemoryState extends State<Memory> with SingleTickerProviderStateMixin {
         Align(
           alignment: Alignment.centerRight,
           child: Text(sdcardInfo.isNotEmpty
-              ? "${FileSizeUtils.getFileSize(int.tryParse(sdcardInfo[2]) * 1024) ?? "1"}/${FileSizeUtils.getFileSize(int.tryParse(sdcardInfo[1]) * 1024) ?? "1"}"
+              ? "${FileSizeUtils.getFileSize(int.tryParse(sdcardInfo[2])! * 1024) ?? "1"}/${FileSizeUtils.getFileSize(int.tryParse(sdcardInfo[1])! * 1024) ?? "1"}"
               : ''),
         ),
         // Text("基本"),

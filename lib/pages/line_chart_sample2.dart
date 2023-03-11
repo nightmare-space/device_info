@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/utils.dart';
 
 class LineChartSample2 extends StatefulWidget {
-  const LineChartSample2({Key key, this.datas}) : super(key: key);
-  final List<int> datas;
+  const LineChartSample2({Key? key, this.datas}) : super(key: key);
+  final List<int>? datas;
 
   @override
   _LineChartSample2State createState() => _LineChartSample2State();
@@ -157,10 +157,10 @@ class _LineChartSample2State extends State<LineChartSample2> {
       lineBarsData: [
         LineChartBarData(
           spots: [
-            for (int i = 0; i < widget.datas.length; i++)
+            for (int i = 0; i < widget.datas!.length; i++)
               FlSpot(
                 i.toDouble(),
-                widget.datas[i].toDouble(),
+                widget.datas![i].toDouble(),
               ),
           ],
           isCurved: false,

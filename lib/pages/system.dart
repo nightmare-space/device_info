@@ -10,8 +10,8 @@ class SystemInfo extends StatefulWidget {
 }
 
 class _SystemInfoState extends State<SystemInfo> {
-  String props;
-  Map<String, String> keys = <String, String>{
+  late String props;
+  Map<String, String?> keys = <String, String?>{
     '版本名': 'ro.build.version.release',
     'API版本': 'ro.build.version.sdk',
     '系统版本号': 'ro.build.display.id',
@@ -34,10 +34,10 @@ class _SystemInfoState extends State<SystemInfo> {
     initSystem();
   }
 
-  String getValueFromProps(String key) {
+  String getValueFromProps(String? key) {
     final List<String> tmp = props.split('\n');
     for (final String line in tmp) {
-      if (line.contains(key)) {
+      if (line.contains(key!)) {
         return line.replaceAll(RegExp('.*\\]:|\\[|\\]'), '');
       }
     }
@@ -63,7 +63,7 @@ class _SystemInfoState extends State<SystemInfo> {
     final String uptime =
         (await exec('cat /proc/uptime')).split(' ').first.replaceAll('.', '');
     print('uptime->$uptime');
-    DateTime dateTime = DateTime(0, 0, 0, 0, 0, int.tryParse(uptime) ~/ 100);
+    DateTime dateTime = DateTime(0, 0, 0, 0, 0, int.tryParse(uptime)! ~/ 100);
     values['已开机时长'] =
         '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}';
     values['内核信息'] = await exec('cat /proc/version');
@@ -93,14 +93,14 @@ class _SystemInfoState extends State<SystemInfo> {
       values['工具箱Busybox路径'] = '未发现Busybox';
     }
     values['构建时间'] =
-        '${DateTime.fromMillisecondsSinceEpoch(int.tryParse(values['构建时间']) * 1000)}';
+        '${DateTime.fromMillisecondsSinceEpoch(int.tryParse(values['构建时间']!)! * 1000)}';
     values['系统环境变量'] =
         (await Process.run('env', <String>[], includeParentEnvironment: true))
             .stdout
             .toString();
     // print();
     setState(() {});
-    Timer timer;
+    late Timer timer;
     Future<void>.delayed(const Duration(), () {
       timer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (mounted) {
@@ -136,7 +136,7 @@ class _SystemInfoState extends State<SystemInfo> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width / 2,
                   child: Text(
-                    values[values.keys.elementAt(i)],
+                    values[values.keys.elementAt(i)]!,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

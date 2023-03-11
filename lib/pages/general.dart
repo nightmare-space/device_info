@@ -22,40 +22,33 @@ class General extends StatefulWidget {
 }
 
 class _GeneralState extends State<General> with TickerProviderStateMixin {
-  DeviceController controller = Get.put(
-    DeviceController()
-      ..pollingDeviceCPUGPU()
-      ..getSimpleInfo(),
-  );
+  DeviceInfoController controller = Get.find();
 
   MethodChannel systemInfo = const MethodChannel('device_info');
-  StreamSubscription<void> _streamSubscription;
-  AnimationController _animationController;
-  AnimationController ramAnimaCtl; //运行内存动画控制器
-  Animation<double> ramScale; //RAM动画值
+  StreamSubscription<void>? _streamSubscription;
+  AnimationController? _animationController;
+  late AnimationController ramAnimaCtl; //运行内存动画控制器
+  late Animation<double> ramScale; //RAM动画值
 
   // num _sensor;
   @override
   void initState() {
     super.initState();
-    ramAnimaCtl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
-    ramScale = Tween<double>(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: ramAnimaCtl, curve: Curves.easeIn));
+    controller
+      ..pollingDeviceCPUGPU()
+      ..getSimpleInfo();
+    ramAnimaCtl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    ramScale = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: ramAnimaCtl, curve: Curves.easeIn));
     ramScale.addListener(() {
       if (mounted) {
         setState(() {});
       }
     });
-    controller.cpuAnimaCtl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
-    controller.cpuUsed =
-        Tween<double>(begin: 0.0, end: 0.0).animate(controller.cpuAnimaCtl);
+    controller.cpuAnimaCtl = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    controller.cpuUsed = Tween<double>(begin: 0.0, end: 0.0).animate(controller.cpuAnimaCtl!);
 
-    controller.gpuAnimaCtl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
-    controller.gpuUsed =
-        Tween<double>(begin: 0.0, end: 0.0).animate(controller.cpuAnimaCtl);
+    controller.gpuAnimaCtl = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    controller.gpuUsed = Tween<double>(begin: 0.0, end: 0.0).animate(controller.cpuAnimaCtl!);
     initRamInfo();
   }
 
@@ -70,18 +63,19 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
     ramAnimaCtl.forward();
   }
 
-  @override
-  void dispose() {
-    _animationController?.dispose();
-    _streamSubscription?.cancel();
-    ramAnimaCtl.dispose();
-    controller.cpuAnimaCtl.dispose();
-    controller.cpuAnimaCtl = null;
-    controller.gpuAnimaCtl.dispose();
-    controller.gpuAnimaCtl = null;
-    controller.timer.cancel();
-    super.dispose();
-  }
+  // todo
+  // @override
+  // void dispose() {
+  //   _animationController?.dispose();
+  //   _streamSubscription?.cancel();
+  //   ramAnimaCtl.dispose();
+  //   controller.cpuAnimaCtl.dispose();
+  //   controller.cpuAnimaCtl = null;
+  //   controller.gpuAnimaCtl.dispose();
+  //   controller.gpuAnimaCtl = null;
+  //   controller.timer.cancel();
+  //   super.dispose();
+  // }
 
   double pitch = 0.0;
   double rotated = 0.0;
@@ -158,7 +152,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
             ),
           ),
           const SizedBox(height: 12),
-          GetBuilder<DeviceController>(builder: (_) {
+          GetBuilder<DeviceInfoController>(builder: (_) {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: getPadding),
               child: LayoutBuilder(builder: (context, con) {
@@ -169,19 +163,14 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                     if (controller.cpuInfos.isEmpty)
                       const SizedBox()
                     else
-                      for (int i = 0;
-                          i < controller.cpuInfos.last.cpuInfos.length;
-                          i++)
+                      for (int i = 0; i < controller.cpuInfos.last.cpuInfos.length; i++)
                         Container(
                           width: (con.maxWidth - 4 * 3) / 4,
                           // height: 100,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.08),
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -190,9 +179,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                               Row(
                                 children: [
                                   Text(
-                                    controller
-                                        .cpuInfos.last.cpuInfos[i].frequency
-                                        .toString(),
+                                    controller.cpuInfos.last.cpuInfos[i].frequency.toString(),
                                     style: const TextStyle(
                                       fontSize: 12,
                                     ),
@@ -231,7 +218,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
   }
 
   Widget mem(BuildContext context) {
-    return GetBuilder<DeviceController>(builder: (_) {
+    return GetBuilder<DeviceInfoController>(builder: (_) {
       return Container(
         width: getWidth(),
         padding: const EdgeInsets.all(10),
@@ -252,25 +239,22 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: controller.memInfo.sdUse == 0
-                    ? 0
-                    : controller.memInfo.sdUse / controller.memInfo.sdTotal,
-                backgroundColor:
-                    Theme.of(context).primaryColor.withOpacity(0.08),
+                value: controller.memInfo.sdUse == 0 ? 0 : controller.memInfo.sdUse! / controller.memInfo.sdTotal!,
+                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.08),
               ),
             ),
             const SizedBox(height: 4),
             Row(
               children: [
                 Text(
-                  FileSizeUtils.getFileSize(controller.memInfo.sdUse * 1024),
+                  FileSizeUtils.getFileSize(controller.memInfo.sdUse! * 1024)!,
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
                 const Text('/'),
                 Text(
-                  FileSizeUtils.getFileSize(controller.memInfo.sdTotal * 1024),
+                  FileSizeUtils.getFileSize(controller.memInfo.sdTotal! * 1024)!,
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                   ),
@@ -302,7 +286,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
             ),
           ),
           const SizedBox(height: 4),
-          GetBuilder<DeviceController>(builder: (_) {
+          GetBuilder<DeviceInfoController>(builder: (_) {
             return Expanded(
               child: Column(
                 children: [
@@ -337,16 +321,14 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        FileSizeUtils.getFileSize(
-                            controller.ramInfo.free * 1000),
+                        FileSizeUtils.getFileSize(controller.ramInfo.free! * 1000)!,
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
                         ),
                       ),
                       const Text('/'),
                       Text(
-                        FileSizeUtils.getFileSize(
-                            controller.ramInfo.total * 1000),
+                        FileSizeUtils.getFileSize(controller.ramInfo.total! * 1000)!,
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
                         ),
@@ -371,7 +353,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
   }
 
   Widget simple(BuildContext context) {
-    return GetBuilder<DeviceController>(builder: (_) {
+    return GetBuilder<DeviceInfoController>(builder: (_) {
       return Container(
         padding: const EdgeInsets.all(10),
         width: getWidth(),
@@ -387,8 +369,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color:
-                      Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8,
@@ -406,8 +387,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color:
-                      Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8,
@@ -417,8 +397,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   children: [
                     // Icon(Icons.adb),
                     // SizedBox(width: 4),
-                    Text(
-                        'Android ' + controller.info.androidVersion.toString()),
+                    Text('Android ' + controller.info.androidVersion.toString()),
                   ],
                 ),
               ),
@@ -428,8 +407,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color:
-                      Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8,
@@ -449,7 +427,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
   }
 
   Widget battery(BuildContext context) {
-    return GetBuilder<DeviceController>(builder: (_) {
+    return GetBuilder<DeviceInfoController>(builder: (_) {
       return Container(
         padding: const EdgeInsets.all(10),
         width: getWidth(),
@@ -480,20 +458,15 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                           width: 32,
                           height: con.maxHeight,
                           decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .primaryColor
-                                .withOpacity(0.11),
+                            color: Theme.of(context).primaryColor.withOpacity(0.11),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         Container(
                           width: 32,
-                          height: (controller.batteryInfo.level ?? 0) /
-                              100 *
-                              con.maxHeight,
+                          height: (controller.batteryInfo.level ?? 0) / 100 * con.maxHeight,
                           decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.4),
+                            color: Theme.of(context).primaryColor.withOpacity(0.4),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -520,9 +493,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withOpacity(0.11),
+                                  color: Theme.of(context).primaryColor.withOpacity(0.11),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 padding: const EdgeInsets.symmetric(
@@ -540,9 +511,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withOpacity(0.11),
+                                  color: Theme.of(context).primaryColor.withOpacity(0.11),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 padding: const EdgeInsets.symmetric(
@@ -597,7 +566,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   ),
                   AnimatedBuilder(
                     animation: controller.cpuUsed,
-                    builder: (BuildContext ctx, Widget child) {
+                    builder: (BuildContext ctx, Widget? child) {
                       cpuProgressColor = getColor(controller.cpuUsed.value);
                       // print('build');
                       return Center(
@@ -615,8 +584,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                             child: Center(
                               child: Text(
                                 toPercentage(controller.cpuUsed.value),
-                                style: const TextStyle(
-                                    fontSize: 10, fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -652,7 +620,7 @@ class _GeneralState extends State<General> with TickerProviderStateMixin {
                   ),
                   AnimatedBuilder(
                     animation: controller.cpuUsed,
-                    builder: (BuildContext ctx, Widget child) {
+                    builder: (BuildContext ctx, Widget? child) {
                       cpuProgressColor = getColor(
                         controller.gpuUsed.value,
                       );

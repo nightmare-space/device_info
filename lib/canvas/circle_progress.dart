@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class CircleProgress extends CustomPainter {
   CircleProgress(this.progress, this._size, this.color, this.background);
-  Paint _paintBackground;
-  Paint _paintFore;
+  late Paint _paintBackground;
+  late Paint _paintFore;
   Color color;
   Color background;
   double progress;

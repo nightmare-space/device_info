@@ -7,7 +7,7 @@ class Battery extends StatefulWidget {
 }
 
 class _BatteryState extends State<Battery> {
-  String batteryInfos;
+  late String batteryInfos;
   Map<String, String> keys = <String, String>{
     '健康状态': 'health',
     '当前电量': 'level',
@@ -23,10 +23,10 @@ class _BatteryState extends State<Battery> {
     init();
   }
 
-  String getValueFromProps(String key) {
+  String getValueFromProps(String? key) {
     final List<String> tmp = batteryInfos.split('\n');
     for (final String line in tmp) {
-      if (line.trim().startsWith(key)) {
+      if (line.trim().startsWith(key!)) {
         return line.replaceAll(RegExp('.*:'), '').trim();
       }
     }
@@ -45,8 +45,8 @@ class _BatteryState extends State<Battery> {
       if (values['健康状态'] == '2') {
         values['健康状态'] = '良好';
       }
-      values['电池温度'] = values['电池温度'].substring(0, 2) + '℃';
-      values['电压'] += 'mV';
+      values['电池温度'] = values['电池温度']!.substring(0, 2) + '℃';
+      values['电压'] = '${values['电压']}mV';
       setState(() {});
       await Future<void>.delayed(const Duration(milliseconds: 1000), () {});
     }
@@ -73,7 +73,7 @@ class _BatteryState extends State<Battery> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width / 2,
                   child: Text(
-                    values[values.keys.elementAt(i)],
+                    values[values.keys.elementAt(i)]!,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

@@ -6,22 +6,22 @@ class BatteryInfo {
     info.health = int.tryParse(getValueFromProps('health', data));
     info.level = int.tryParse(getValueFromProps('level', data));
     info.temperature =
-        double.tryParse(getValueFromProps('temperature', data)) / 10;
+        double.tryParse(getValueFromProps('temperature', data))! / 10;
     info.technology = getValueFromProps('technology', data);
     info.voltage = getValueFromProps('voltage', data);
     info.status = int.tryParse(getValueFromProps('status', data));
     return info;
   }
-  bool acPowered;
-  bool usbPowerd;
-  bool wirelessPowerd;
-  int status;
-  int health;
-  bool present;
-  int level;
-  String voltage;
-  double temperature;
-  String technology;
+  bool? acPowered;
+  bool? usbPowerd;
+  bool? wirelessPowerd;
+  int? status;
+  int? health;
+  bool? present;
+  int? level;
+  String? voltage;
+  double? temperature;
+  String? technology;
 }
 
 String getValueFromProps(String key, String data) {

@@ -1,5 +1,5 @@
 class SimpleInfo {
-  int androidVersion;
-  String deviceId;
-  String uptime;
+  int? androidVersion;
+  String? deviceId;
+  String? uptime;
 }
