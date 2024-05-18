@@ -33,7 +33,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
             ),
             child: LineChart(
               mainData(),
-              swapAnimationDuration: Duration.zero,
+              duration: Duration.zero,
             ),
           ),
         ),
