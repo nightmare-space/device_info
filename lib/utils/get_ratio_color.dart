@@ -8,14 +8,16 @@ Color getColor(double progress) {
 }
 
   bool isLightColor(int color) {
-    final double darkness = 1 -
-        (0.299 * image.getRed(color) +
-                0.587 * image.getGreen(color) +
-                0.114 * image.getBlue(color)) /
-            255;
-    if (darkness < 0.5) {
-      return true; // It's a light color
-    } else {
-      return false; // It's a dark color
-    }
+    return true;
+    // return image.getLuminance(color) > 0.5;
+    // final double darkness = 1 -
+    //     (0.299 * image.getRed(color) +
+    //             0.587 * image.getGreen(color) +
+    //             0.114 * image.getBlue(color)) /
+    //         255;
+    // if (darkness < 0.5) {
+    //   return true; // It's a light color
+    // } else {
+    //   return false; // It's a dark color
+    // }
   }
