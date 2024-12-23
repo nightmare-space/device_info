@@ -1,0 +1,7 @@
+dependency_overrides:
+  adb_util:
+    path: ../../nightmare-core/adb_kit/packages/adb_util
+  android_api_server_client:
+    path: ../../nightmare-space/android_api_server_client
+  global_repository:
+    path: ../../nightmare-space/global_repository

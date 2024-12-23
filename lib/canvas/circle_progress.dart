@@ -13,13 +13,6 @@ class CircleProgress extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // final Gradient gradient = new SweepGradient(
-    //   colors: [
-    //     Colors.white,
-    //     color,
-    //   ],
-    // );
-
     final Rect rect = Rect.fromCircle(
       center: Offset(size.width / 2, size.height / 2),
       radius: size.width / 2 - _size,
@@ -38,8 +31,7 @@ class CircleProgress extends CustomPainter {
       ..isAntiAlias = true;
     canvas.translate(0.0, size.width);
     canvas.rotate(-pi / 2);
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2),
-        size.width / 2 - _size, _paintBackground);
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), size.width / 2 - _size, _paintBackground);
     canvas.drawArc(rect, 0, progress * 2 * pi, false, _paintFore);
   }
 

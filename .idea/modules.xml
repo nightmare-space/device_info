@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/device_info.iml" filepath="$PROJECT_DIR$/device_info.iml" />
       <module fileurl="file://$PROJECT_DIR$/android/device_info_android.iml" filepath="$PROJECT_DIR$/android/device_info_android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/example/android/device_info_example_android.iml" filepath="$PROJECT_DIR$/example/android/device_info_example_android.iml" />
     </modules>
   </component>
 </project>
